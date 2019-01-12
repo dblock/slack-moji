@@ -1,0 +1,85 @@
+<html>
+  <head>
+    <title>Moji: Subscribe</title>
+    <%= partial 'public/partials/_head.html.erb' %>
+    <script src='https://checkout.stripe.com/checkout.js'></script>
+    <link rel='stylesheet' href='https://checkout.stripe.com/v3/checkout/button.css'></link>
+  </head>
+  <body>
+    <p class='icon'>
+      <a href='/'><img src='img/icon.png'></a>
+    </p>
+    <p>
+      <h1>Moji: Subscribe</h1>
+    </p>
+    <p id='messages' />
+    <p id='subscribe'>
+      <button id='subscribeButton' class='stripe-button-el'>
+          <span style='display: block; min-height: 30px;'>Pay $9.99 with Card</span>
+      </button>
+      <p>
+        <img src='/img/stripe.png' width='119' height='26'></img>
+      </p>
+      <script>
+        $(document).ready(function() {
+
+          <% team = Team.where(team_id: request['team_id']).first %>
+
+          var team = {
+            id: '<%= team && team.team_id %>',
+            name: '<%= team && team.name %>',
+            subscribed: <%= !!(team && team.subscribed) %>,
+          }
+
+          if (team.subscribed) {
+            SlackMoji.message('Team <b>' + team.name + '</b> is already subscribed, thank you for your support.');
+            $('#subscribeButton').remove();
+          } else if (team.id && team.name) {
+            SlackMoji.message('Subscribe team <b>' + team.name + '</b> for $9.99/yr.');
+          } else {
+            $('#subscribeButton').remove();
+            SlackMoji.message('Missing or invalid team ID.');
+          }
+
+          var handler = StripeCheckout.configure({
+            key: '<%= ENV['STRIPE_API_PUBLISHABLE_KEY'] %>',
+            image: '/img/icon.png',
+            locale: 'auto',
+            token: function(token) {
+              $.ajax({
+                type: 'POST',
+                url: '/api/subscriptions',
+                data: {
+                  stripe_email: token.email,
+                  stripe_token: token.id,
+                  stripe_token_type: token.type,
+                  team_id: team.id
+                },
+                success: function(data) {
+                  SlackMoji.message('Team <b>' + team.name + '</b> successfully subscribed.<br><br>Thank you for your support!');
+                  $('#subscribeButton').remove();
+                },
+                error: SlackMoji.error
+              });
+            }
+          });
+
+          $('#subscribeButton').on('click', function(e) {
+            var amount = 999;
+            handler.open({
+              name: 'Moji',
+              description: 'Yearly Subscription',
+              amount: amount
+            });
+            e.preventDefault();
+          });
+
+          $(window).on('popstate', function() {
+            handler.close();
+          });
+        });
+      </script>
+    </p>
+    <%= partial 'public/partials/_footer.html.erb' %>
+  </body>
+</html>

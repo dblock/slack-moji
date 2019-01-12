@@ -1,0 +1,9 @@
+{
+	"name": "Moji",
+	"description": "You don't have enough emoji in Slack.",
+	"respository": "https://github.com/dblock/slack-moji",
+	"keywords": ["slack", "bots", "emoji"],
+	"addons": [
+		"mongolab"
+	]
+}

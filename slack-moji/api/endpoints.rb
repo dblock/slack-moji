@@ -1,0 +1,7 @@
+require 'slack-moji/api/endpoints/teams_endpoint'
+require 'slack-moji/api/endpoints/subscriptions_endpoint'
+require 'slack-moji/api/endpoints/status_endpoint'
+require 'slack-moji/api/endpoints/credit_cards_endpoint'
+require 'slack-moji/api/endpoints/users_endpoint'
+require 'slack-moji/api/endpoints/slack_endpoint'
+require 'slack-moji/api/endpoints/root_endpoint'
