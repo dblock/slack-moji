@@ -11,6 +11,9 @@ module SlackMoji
         once_and_every 60 * 60 do
           expire_subscriptions!
         end
+        once_and_every 60 * 60 do
+          emoji!
+        end
       end
     end
 
@@ -91,6 +94,22 @@ module SlackMoji
           end
         rescue StandardError => e
           logger.warn "Error checking team #{team} subscription, #{e.message}."
+        end
+      end
+    end
+
+    def emoji!
+      log_info_without_repeat "Emoji for #{Team.active.count} team(s)."
+      Team.active.each do |team|
+        begin
+          users = team.users.with_emoji
+          log_info_without_repeat "Emoji for #{team}, #{users.count} user(s)."
+          users.each do |user|
+            log_info_without_repeat " emoji #{user}"
+            user.emoji!
+          end
+        rescue StandardError => e
+          logger.warn "Error emoji team #{team}, #{e.message}."
         end
       end
     end

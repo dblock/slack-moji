@@ -49,4 +49,52 @@ describe User do
       end
     end
   end
+  context '#authorize!' do
+    let!(:user) { Fabricate(:user) }
+    it 'retrieves a slack access token' do
+      expect(user.team.slack_client).to receive(:oauth_access).with(
+        client_id: nil,
+        client_secret: nil,
+        code: 'code',
+        redirect_uri: '/authorize'
+      ).and_return(
+        'access_token' => 'access-token'
+      )
+      expect(user).to receive(:dm!).with(
+        text: "May the moji be with you!\nTo configure try `/moji me`."
+      )
+      user.authorize!('code')
+      expect(user.access_token).to eq 'access-token'
+    end
+  end
+  context '#emoji!' do
+    let!(:user) { Fabricate(:user) }
+    context 'emoji_count is 1' do
+      before do
+        user.update_attributes!(emoji_count: 1)
+      end
+      it 'sets user emoji' do
+        expect(user.slack_client).to receive(:users_profile_set) do |arg|
+          profile = JSON.parse(arg[:profile])
+          expect(profile['status_emoji']).to_not be_nil
+          expect(profile['status_emoji']).to match /^\:\w*\:$/
+          expect(profile['status_text']).to_not be_nil
+        end
+        user.emoji!
+      end
+    end
+    context 'emoji_count is 0' do
+      before do
+        user.update_attributes!(emoji_count: 0)
+      end
+      it 'unsets user emoji' do
+        expect(user.slack_client).to receive(:users_profile_set).with(
+          profile: {
+            status_text: nil, status_emoji: nil
+          }.to_json
+        )
+        user.emoji!
+      end
+    end
+  end
 end

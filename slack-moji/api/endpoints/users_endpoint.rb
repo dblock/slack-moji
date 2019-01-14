@@ -7,7 +7,7 @@ module Api
       helpers Api::Helpers::PaginationParameters
 
       namespace :users do
-        desc 'Connect a user to Strava.'
+        desc 'Connect a user to Slack.'
         params do
           requires :id, type: String
           requires :code, type: String
@@ -15,7 +15,7 @@ module Api
         put ':id' do
           user = User.where(id: params[:id]).first
           if user
-            user.connect!(params[:code])
+            user.authorize!(params[:code])
           else
             error!('Missing User', 404)
           end

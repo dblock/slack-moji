@@ -2,6 +2,8 @@ source 'http://rubygems.org'
 
 ruby '2.5.3'
 
+gem 'emoji_data'
+gem 'faker'
 gem 'giphy'
 gem 'grape'
 gem 'hashie'
@@ -33,7 +35,6 @@ group :test do
   gem 'capybara'
   gem 'database_cleaner'
   gem 'fabrication'
-  gem 'faker'
   gem 'hyperclient'
   gem 'rack-test'
   gem 'rspec'

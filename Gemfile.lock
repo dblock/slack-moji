@@ -49,6 +49,7 @@ GEM
     diff-lcs (1.3)
     domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
+    emoji_data (0.2.0)
     equalizer (0.0.11)
     fabrication (2.20.1)
     faker (1.9.1)
@@ -276,6 +277,7 @@ PLATFORMS
 DEPENDENCIES
   capybara
   database_cleaner
+  emoji_data
   fabrication
   faker
   foreman

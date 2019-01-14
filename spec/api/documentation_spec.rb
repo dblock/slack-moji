@@ -16,6 +16,7 @@ describe Api do
         '/api/users/{id}',
         '/api/subscriptions',
         '/api/credit_cards',
+        '/api/slack/action',
         '/api/slack/command'
       ]
     end

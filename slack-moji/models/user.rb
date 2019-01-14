@@ -4,7 +4,10 @@ class User
 
   field :user_id, type: String
   field :user_name, type: String
+  field :access_token, type: String
 
+  field :emoji, type: Boolean, default: false
+  field :emoji_count, type: Integer, default: 0
   field :is_bot, type: Boolean, default: false
 
   belongs_to :team, index: true
@@ -12,6 +15,8 @@ class User
 
   index({ user_id: 1, team_id: 1 }, unique: true)
   index(user_name: 1, team_id: 1)
+
+  scope :with_emoji, -> { where(emoji: true, :access_token.ne => nil) }
 
   def slack_mention
     "<@#{user_id}>"
@@ -53,7 +58,106 @@ class User
     }.compact
   end
 
+  def dm!(message)
+    im = team.slack_client.im_open(user: user_id)
+    team.slack_client.chat_postMessage(message.merge(channel: im['channel']['id'], as_user: true))
+  end
+
   def to_s
     "user_id=#{user_id}, user_name=#{user_name}"
+  end
+
+  def emoji_count?
+    !emoji_count.nil? || emoji_count == 0
+  end
+
+  def emoji_text
+    case emoji_count
+    when 0 then 'No Emoji'
+    else "#{emoji_count} Emoji"
+    end
+  end
+
+  def moji_authorize_uri
+    "#{ENV['APP_URL']}/authorize"
+  end
+
+  def slack_oauth_url
+    "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=#{ENV['SLACK_CLIENT_ID']}&redirect_uri=#{URI.encode(moji_authorize_uri)}&state=#{id}"
+  end
+
+  def to_slack_auth_request
+    {
+      text: 'Please let Moji make you happy.',
+      attachments: [
+        fallback: slack_oauth_url,
+        actions: [
+          type: 'button',
+          text: 'Allow Moji',
+          url: slack_oauth_url
+        ]
+      ]
+    }
+  end
+
+  def to_slack_emoji_question(text = 'How much emoji would you like?')
+    {
+      text: text,
+      attachments: [
+        {
+          text: '',
+          attachment_type: 'default',
+          callback_id: 'emoji-count',
+          actions: [
+            {
+              name: 'emoji-count',
+              text: 'No Emoji',
+              type: 'button',
+              value: 0,
+              style: emoji_count == 0 ? 'primary' : 'default'
+            },
+            {
+              name: 'emoji-count',
+              text: 'Yes Emoji',
+              type: 'button',
+              value: 1,
+              style: emoji_count == 1 ? 'primary' : 'default'
+            }
+          ]
+        }
+      ]
+    }
+  end
+
+  def authorize!(code)
+    rc = team.slack_client.oauth_access(
+      client_id: ENV['SLACK_CLIENT_ID'],
+      client_secret: ENV['SLACK_CLIENT_SECRET'],
+      code: code,
+      redirect_uri: moji_authorize_uri
+    )
+
+    update_attributes!(access_token: rc['access_token'], emoji_count: 1, emoji: true)
+
+    dm!(text: "May the moji be with you!\nTo configure try `/moji me`.")
+  end
+
+  def slack_client
+    @slack_client ||= Slack::Web::Client.new(token: access_token)
+  end
+
+  def emoji!
+    if emoji_count && emoji_count > 0
+      emoji = EmojiData.all[rand(EmojiData.all.count)]
+      slack_client.users_profile_set(profile: {
+        status_text: Faker::GreekPhilosophers.quote,
+        status_emoji: ":#{emoji.short_name}:"
+      }.to_json)
+    elsif emoji_count == 0
+      slack_client.users_profile_set(profile: {
+        status_text: nil,
+        status_emoji: nil
+      }.to_json)
+    end
   end
 end
