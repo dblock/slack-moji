@@ -151,11 +151,13 @@ class User
   def emoji!
     if emoji_count && emoji_count > 0
       emoji = EmojiData.all[rand(EmojiData.all.count)]
+      logger.info "Emoji :#{emoji.short_name}: #{self}."
       slack_client.users_profile_set(profile: {
         status_text: Faker::GreekPhilosophers.quote,
         status_emoji: ":#{emoji.short_name}:"
       }.to_json)
     elsif emoji_count == 0
+      logger.info "Removing emoji #{self}."
       slack_client.users_profile_set(profile: {
         status_text: nil,
         status_emoji: nil
