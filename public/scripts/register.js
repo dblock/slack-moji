@@ -11,7 +11,7 @@ $(document).ready(function() {
         code: code
       },
       success: function(data) {
-        SlackMoji.message('Team successfully registered!<br><br>Invite <b>@moji</b> to a channel.');
+        SlackMoji.message('Team successfully registered!<br><br>Try <b>/moji me</b> to add emoji to your profile.');
       },
       error: SlackMoji.error
     });

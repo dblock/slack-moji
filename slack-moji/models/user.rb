@@ -88,7 +88,7 @@ class User
 
   def to_slack_auth_request
     {
-      text: 'Please let Moji make you happy.',
+      text: 'Please allow more emoji in your profile.',
       attachments: [
         fallback: slack_oauth_url,
         actions: [

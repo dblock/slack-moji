@@ -34,7 +34,7 @@ describe Api::Endpoints::SlackEndpoint do
         expect(last_response.status).to eq 201
         response = JSON.parse(last_response.body)
         expect(response).to eq(
-          'text' => 'Please let Moji make you happy.',
+          'text' => 'Please allow more emoji in your profile.',
           'attachments' => [
             'fallback' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=/authorize&state=#{user.id}",
             'actions' => [

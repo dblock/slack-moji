@@ -146,7 +146,7 @@ EOS
   def activated_text
     <<~EOS
       Welcome to Moji!
-      Try /moji to get more emoji in your life.
+      Use `/moji me` to get more emoji in your profile.
 EOS
   end
 

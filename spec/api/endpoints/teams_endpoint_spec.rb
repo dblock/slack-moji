@@ -47,7 +47,7 @@ describe Api::Endpoints::TeamsEndpoint do
       it 'creates a team' do
         expect(SlackMoji::Service.instance).to receive(:start!)
         expect_any_instance_of(Slack::Web::Client).to receive(:chat_postMessage).with(
-          text: "Welcome to Moji!\nTry /moji to get more emoji in your life.\n",
+          text: "Welcome to Moji!\nUse `/moji me` to get more emoji in your profile.\n",
           channel: 'C1',
           as_user: true
         )
@@ -64,7 +64,7 @@ describe Api::Endpoints::TeamsEndpoint do
       it 'reactivates a deactivated team' do
         expect(SlackMoji::Service.instance).to receive(:start!)
         expect_any_instance_of(Slack::Web::Client).to receive(:chat_postMessage).with(
-          text: "Welcome to Moji!\nTry /moji to get more emoji in your life.\n",
+          text: "Welcome to Moji!\nUse `/moji me` to get more emoji in your profile.\n",
           channel: 'C1',
           as_user: true
         )
@@ -91,7 +91,7 @@ describe Api::Endpoints::TeamsEndpoint do
       it 'reactivates a deactivated team with a different code' do
         expect(SlackMoji::Service.instance).to receive(:start!)
         expect_any_instance_of(Slack::Web::Client).to receive(:chat_postMessage).with(
-          text: "Welcome to Moji!\nTry /moji to get more emoji in your life.\n",
+          text: "Welcome to Moji!\nUse `/moji me` to get more emoji in your profile.\n",
           channel: 'C1',
           as_user: true
         )
