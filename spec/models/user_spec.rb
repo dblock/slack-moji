@@ -63,6 +63,7 @@ describe User do
       expect(user).to receive(:dm!).with(
         text: "May the moji be with you!\nTo configure try `/moji me`."
       )
+      expect(user).to receive(:emoji!)
       user.authorize!('code')
       expect(user.access_token).to eq 'access-token'
     end

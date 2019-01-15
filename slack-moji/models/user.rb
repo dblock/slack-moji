@@ -140,6 +140,8 @@ class User
     update_attributes!(access_token: rc['access_token'], emoji_count: 1, emoji: true)
 
     dm!(text: "May the moji be with you!\nTo configure try `/moji me`.")
+
+    emoji!
   end
 
   def slack_client
