@@ -72,37 +72,55 @@ describe Api::Endpoints::SlackEndpoint do
       end
     end
     context 'interactive buttons' do
-      it 'sets no emoji' do
-        expect_any_instance_of(User).to receive(:emoji!)
-        post '/api/slack/action', payload: {
-          actions: [{ name: 'emoji-count', value: 0 }],
-          channel: { id: 'C1', name: 'moji' },
-          user: { id: user.user_id },
-          team: { id: team.team_id },
-          token: token,
-          callback_id: 'emoji-count'
-        }.to_json
-        expect(last_response.status).to eq 201
-        expect(user.reload.emoji_count).to eq 0
-        expect(last_response.body).to eq(
-          user.to_slack_emoji_question('Got it, no emoji.').to_json
-        )
+      context 'emoji-count' do
+        it 'sets no emoji' do
+          expect_any_instance_of(User).to receive(:emoji!)
+          post '/api/slack/action', payload: {
+            actions: [{ name: 'emoji-count', value: 0 }],
+            channel: { id: 'C1', name: 'moji' },
+            user: { id: user.user_id },
+            team: { id: team.team_id },
+            token: token,
+            callback_id: 'emoji-count'
+          }.to_json
+          expect(last_response.status).to eq 201
+          expect(user.reload.emoji_count).to eq 0
+          expect(last_response.body).to eq(
+            user.to_slack_emoji_question('Got it, no emoji.').to_json
+          )
+        end
+        it 'sets emoji' do
+          expect_any_instance_of(User).to receive(:emoji!)
+          post '/api/slack/action', payload: {
+            actions: [{ name: 'emoji-count', value: 1 }],
+            channel: { id: 'C1', name: 'moji' },
+            user: { id: user.user_id },
+            team: { id: team.team_id },
+            token: token,
+            callback_id: 'emoji-count'
+          }.to_json
+          expect(last_response.status).to eq 201
+          expect(user.reload.emoji_count).to eq 1
+          expect(last_response.body).to eq(
+            user.to_slack_emoji_question('Got it, 1 emoji.').to_json
+          )
+        end
       end
-      it 'sets emoji' do
-        expect_any_instance_of(User).to receive(:emoji!)
-        post '/api/slack/action', payload: {
-          actions: [{ name: 'emoji-count', value: 1 }],
-          channel: { id: 'C1', name: 'moji' },
-          user: { id: user.user_id },
-          team: { id: team.team_id },
-          token: token,
-          callback_id: 'emoji-count'
-        }.to_json
-        expect(last_response.status).to eq 201
-        expect(user.reload.emoji_count).to eq 1
-        expect(last_response.body).to eq(
-          user.to_slack_emoji_question('Got it, 1 emoji.').to_json
-        )
+      context 'emoji-text' do
+        it 'parses and converts emoji' do
+          expect_any_instance_of(Slack::Web::Client).to receive(:reactions_add).exactly(2).times
+          post '/api/slack/action', payload: {
+            type: 'message_action',
+            user: { id: user.user_id },
+            team: { id: team.team_id },
+            channel: { id: 'C1', name: 'moji' },
+            message_ts: '1547654324.000400',
+            message: { text: 'I love it when a dog barks.', type: 'text', user: 'U04KB5WQR', ts: '1547654324.000400' },
+            token: token,
+            callback_id: 'emoji-text'
+          }.to_json
+          expect(last_response.status).to eq 201
+        end
       end
     end
     after do

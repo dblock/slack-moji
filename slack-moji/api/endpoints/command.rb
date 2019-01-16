@@ -2,32 +2,35 @@ module Api
   module Endpoints
     class SlackEndpointCommands
       class Command
-        attr_reader :action, :arg, :channel_id, :channel_name, :user_id, :team_id, :text, :image_url, :token, :response_url, :trigger_id, :type, :submission
+        attr_reader :action, :arg, :channel_id, :channel_name, :user_id, :team_id, :text, :image_url, :token, :response_url, :trigger_id, :type, :submission, :message_ts
 
         def initialize(params)
           if params.key?(:payload)
-            @action = params[:payload][:callback_id]
-            @channel_id = params[:payload][:channel][:id]
-            @channel_name = params[:payload][:channel][:name]
-            @user_id = params[:payload][:user][:id]
-            @team_id = params[:payload][:team][:id]
-            @type = params[:payload][:type]
+            payload = params[:payload]
+            @action = payload[:callback_id]
+            @channel_id = payload[:channel][:id]
+            @channel_name = payload[:channel][:name]
+            @user_id = payload[:user][:id]
+            @team_id = payload[:team][:id]
+            @type = payload[:type]
+            @message_ts = payload[:message_ts]
             if params[:payload].key?(:actions)
-              @arg = params[:payload][:actions][0][:value]
+              @arg = payload[:actions][0][:value]
               @text = [action, arg].join(' ')
             elsif params[:payload].key?(:message)
-              payload_message = params[:payload][:message]
+              payload_message = payload[:message]
               @text = payload_message[:text]
+              @message_ts ||= payload_message[:ts]
               if payload_message.key?(:attachments)
                 payload_message[:attachments].each do |attachment|
                   @text = [@text, attachment[:image_url]].compact.join("\n")
                 end
               end
             end
-            @token = params[:payload][:token]
-            @response_url = params[:payload][:response_url]
-            @trigger_id = params[:payload][:trigger_id]
-            @submission = params[:payload][:submission]
+            @token = payload[:token]
+            @response_url = payload[:response_url]
+            @trigger_id = payload[:trigger_id]
+            @submission = payload[:submission]
           else
             @text = params[:text]
             @action, @arg = text.split(/\s/, 2)
@@ -51,6 +54,33 @@ module Api
           return if token == ENV['SLACK_VERIFICATION_TOKEN']
 
           throw :error, status: 401, message: 'Message token is not coming from Slack.'
+        end
+
+        def emoji_count!
+          emoji_count = arg.to_i
+          user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count > 0)
+          user.emoji!
+          user.to_slack_emoji_question("Got it, #{user.emoji_text.downcase}.")
+        end
+
+        def emoji_text!
+          case type
+          when 'message_action' then
+            text.scan(/\w{3,}/) do |word|
+              emojis = EmojiData.find_by_short_name(word)
+              next unless emojis&.any?
+
+              emoji = emojis[rand(emojis.count)]
+              user.team.slack_client.reactions_add(
+                name: emoji.short_name,
+                channel: channel_id,
+                timestamp: message_ts
+              )
+            end
+            { message: 'OK' }
+          else
+            { message: 'Unsupported message type.' }
+          end
         end
       end
     end

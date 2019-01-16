@@ -71,10 +71,9 @@ module Api
 
           case command.action
           when 'emoji-count'
-            emoji_count = command.arg.to_i
-            command.user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count > 0)
-            command.user.emoji!
-            command.user.to_slack_emoji_question("Got it, #{command.user.emoji_text.downcase}.")
+            command.emoji_count!
+          when 'emoji-text' then
+            command.emoji_text!
           else
             { message: "Sorry, I don't understand the `#{command.callback_id}` command." }
           end
