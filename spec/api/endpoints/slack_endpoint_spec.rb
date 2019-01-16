@@ -16,6 +16,7 @@ describe Api::Endpoints::SlackEndpoint do
              command: '/moji',
              text: 'me',
              channel_id: 'C1',
+             channel_name: 'channel',
              user_id: 'user_id',
              team_id: 'team_id',
              token: 'invalid-token'
@@ -28,6 +29,7 @@ describe Api::Endpoints::SlackEndpoint do
              command: '/moji',
              text: 'me',
              channel_id: 'C1',
+             channel_name: 'channel',
              user_id: user.user_id,
              team_id: user.team.team_id,
              token: token
@@ -56,6 +58,7 @@ describe Api::Endpoints::SlackEndpoint do
                command: '/moji',
                text: 'me',
                channel_id: 'C1',
+               channel_name: 'channel',
                user_id: user.user_id,
                team_id: user.team.team_id,
                token: token

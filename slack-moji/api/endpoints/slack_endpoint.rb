@@ -1,3 +1,5 @@
+require_relative 'command'
+
 module Api
   module Endpoints
     class SlackEndpoint < Grape::API
@@ -11,29 +13,25 @@ module Api
           requires :token, type: String
           requires :user_id, type: String
           requires :channel_id, type: String
+          requires :channel_name, type: String
           requires :team_id, type: String
         end
         post '/command' do
-          token = params['token']
-          error!('Message token is not coming from Slack.', 401) if ENV.key?('SLACK_VERIFICATION_TOKEN') && token != ENV['SLACK_VERIFICATION_TOKEN']
+          command = SlackEndpointCommands::Command.new(params)
+          command.slack_verification_token!
 
-          channel_id = params['channel_id']
-          user_id = params['user_id']
-          team_id = params['team_id']
-          text = params['text']
+          response = if command.user.access_token
+                       case command.action
+                       when 'me' then
+                         command.user.to_slack_emoji_question
+                       else
+                         { message: "Sorry, I don't understand the `#{command.action}` command." }
+                       end
+                     else
+                       command.user.to_slack_auth_request
+                     end
 
-          user = ::User.find_create_or_update_by_team_and_slack_id!(team_id, user_id)
-
-          if user.access_token
-            case text
-            when 'me' then
-              user.to_slack_emoji_question.merge(user: user_id, channel: channel_id)
-            else
-              { message: "Sorry, I don't understand the `#{text}` command.", user: user_id, channel: channel_id }
-            end
-          else
-            user.to_slack_auth_request.merge(user: user_id, channel: channel_id)
-          end
+          response.merge(user: command.user_id, channel: command.channel_id)
         end
 
         desc 'Respond to interactive slack buttons and actions.'
@@ -41,41 +39,44 @@ module Api
           requires :payload, type: JSON do
             requires :token, type: String
             requires :callback_id, type: String
+            optional :type, type: String
+            optional :trigger_id, type: String
+            optional :response_url, type: String
             requires :channel, type: Hash do
               requires :id, type: String
+              optional :name, type: String
             end
             requires :user, type: Hash do
               requires :id, type: String
+              optional :name, type: String
             end
             requires :team, type: Hash do
               requires :id, type: String
+              optional :domain, type: String
             end
-            requires :actions, type: Array do
+            optional :actions, type: Array do
               requires :value, type: String
+            end
+            optional :message, type: Hash do
+              requires :type, type: String
+              requires :user, type: String
+              requires :ts, type: String
+              requires :text, type: String
             end
           end
         end
         post '/action' do
-          payload = params['payload']
-          token = payload['token']
-          error!('Message token is not coming from Slack.', 401) if ENV.key?('SLACK_VERIFICATION_TOKEN') && token != ENV['SLACK_VERIFICATION_TOKEN']
+          command = SlackEndpointCommands::Command.new(params)
+          command.slack_verification_token!
 
-          callback_id = payload['callback_id']
-          channel_id = payload['channel']['id']
-          channel_name = payload['channel']['name']
-          user_id = payload['user']['id']
-          team_id = payload['team']['id']
-
-          user = ::User.find_create_or_update_by_team_and_slack_id!(team_id, user_id)
-
-          case callback_id
+          case command.action
           when 'emoji-count'
-            emoji_count = payload['actions'].first['value'].to_i
-            user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count > 0)
-            user.emoji!
-            user.to_slack_emoji_question("Got it, #{user.emoji_text.downcase}.")
+            emoji_count = command.arg.to_i
+            command.user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count > 0)
+            command.user.emoji!
+            command.user.to_slack_emoji_question("Got it, #{command.user.emoji_text.downcase}.")
           else
-            error!("Callback #{callback_id} is not supported.", 404)
+            { message: "Sorry, I don't understand the `#{command.callback_id}` command." }
           end
         end
       end
