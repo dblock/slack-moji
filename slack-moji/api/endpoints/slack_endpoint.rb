@@ -70,8 +70,8 @@ module Api
 
           case callback_id
           when 'emoji-count'
-            emoji_count = payload['actions'].first['value'].to_i
-            user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count > 0)
+            new_status = payload['actions'].first['value']
+            user.update_attributes!(status: new_status)
             user.emoji!
             user.to_slack_emoji_question("Got it, #{user.emoji_text.downcase}.")
           else

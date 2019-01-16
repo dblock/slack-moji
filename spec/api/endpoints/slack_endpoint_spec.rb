@@ -80,7 +80,7 @@ describe Api::Endpoints::SlackEndpoint do
           callback_id: 'emoji-count'
         }.to_json
         expect(last_response.status).to eq 201
-        expect(user.reload.emoji_count).to eq 0
+        expect(user.reload.using_emoji_status?).to eq false
         expect(last_response.body).to eq(
           user.to_slack_emoji_question('Got it, no emoji.').to_json
         )
@@ -96,7 +96,7 @@ describe Api::Endpoints::SlackEndpoint do
           callback_id: 'emoji-count'
         }.to_json
         expect(last_response.status).to eq 201
-        expect(user.reload.emoji_count).to eq 1
+        expect(user.reload.using_emoji_status?).to eq true
         expect(last_response.body).to eq(
           user.to_slack_emoji_question('Got it, 1 emoji.').to_json
         )

@@ -70,9 +70,9 @@ describe User do
   end
   context '#emoji!' do
     let!(:user) { Fabricate(:user) }
-    context 'emoji_count is 1' do
+    context 'using_emoji_status? is true' do
       before do
-        user.update_attributes!(emoji_count: 1)
+        user.update_attributes!(status: :emoji)
       end
       it 'sets user emoji' do
         expect(user.slack_client).to receive(:users_profile_set) do |arg|
@@ -84,14 +84,15 @@ describe User do
         user.emoji!
       end
     end
-    context 'emoji_count is 0' do
+    context 'using_emoji_status? is false' do
       before do
-        user.update_attributes!(emoji_count: 0)
+        user.update_attributes!(status: :unsubscribed)
       end
       it 'unsets user emoji' do
         expect(user.slack_client).to receive(:users_profile_set).with(
           profile: {
-            status_text: nil, status_emoji: nil
+            status_text: nil,
+            status_emoji: nil
           }.to_json
         )
         user.emoji!

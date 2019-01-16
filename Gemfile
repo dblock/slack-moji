@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-ruby '2.5.3'
+ruby '~> 2.5.0'
 
 gem 'emoji_data'
 gem 'faker'
@@ -9,6 +9,7 @@ gem 'grape'
 gem 'hashie'
 gem 'httparty'
 gem 'mongoid'
+gem 'mongoid-enum'
 gem 'mongoid-scroll'
 gem 'newrelic_rpm'
 gem 'nokogiri'

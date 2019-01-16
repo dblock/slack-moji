@@ -1,14 +1,14 @@
 class User
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Mongoid::Enum
 
   field :user_id, type: String
   field :user_name, type: String
   field :access_token, type: String
 
-  field :emoji, type: Boolean, default: false
-  field :emoji_count, type: Integer, default: 0
   field :is_bot, type: Boolean, default: false
+  enum :status, %i[unsubscribed emoji] # , :github]
 
   belongs_to :team, index: true
   validates_presence_of :team
@@ -16,7 +16,7 @@ class User
   index({ user_id: 1, team_id: 1 }, unique: true)
   index(user_name: 1, team_id: 1)
 
-  scope :with_emoji, -> { where(emoji: true, :access_token.ne => nil) }
+  scope :with_emoji, -> { where(status_type: 'emoji', :access_token.ne => nil) }
 
   def slack_mention
     "<@#{user_id}>"
@@ -67,14 +67,19 @@ class User
     "user_id=#{user_id}, user_name=#{user_name}"
   end
 
-  def emoji_count?
-    !emoji_count.nil? || emoji_count == 0
+  def not_updating_status?
+    status == :unsubscribed
+  end
+
+  def using_emoji_status?
+    status == :emoji
   end
 
   def emoji_text
-    case emoji_count
-    when 0 then 'No Emoji'
-    else "#{emoji_count} Emoji"
+    if using_emoji_status?
+      'No Emoji'
+    else
+      'Emoji'
     end
   end
 
@@ -100,7 +105,7 @@ class User
     }
   end
 
-  def to_slack_emoji_question(text = 'How much emoji would you like?')
+  def to_slack_emoji_question(text = 'What type of updates would you like?')
     {
       text: text,
       attachments: [
@@ -110,18 +115,18 @@ class User
           callback_id: 'emoji-count',
           actions: [
             {
-              name: 'emoji-count',
+              name: 'status',
               text: 'No Emoji',
               type: 'button',
-              value: 0,
-              style: emoji_count == 0 ? 'primary' : 'default'
+              value: 'unsubscribed',
+              style: not_updating_status? ? 'primary' : 'default'
             },
             {
-              name: 'emoji-count',
+              name: 'status',
               text: 'Yes Emoji',
-              type: 'button',
+              type: 'emoji',
               value: 1,
-              style: emoji_count == 1 ? 'primary' : 'default'
+              style: using_emoji_status? ? 'primary' : 'default'
             }
           ]
         }
@@ -137,7 +142,7 @@ class User
       redirect_uri: moji_authorize_uri
     )
 
-    update_attributes!(access_token: rc['access_token'], emoji_count: 1, emoji: true)
+    update_attributes!(access_token: rc['access_token'], status: :emoji)
 
     dm!(text: "May the moji be with you!\nTo configure try `/moji me`.")
 
@@ -149,14 +154,14 @@ class User
   end
 
   def emoji!
-    if emoji_count && emoji_count > 0
+    if using_emoji_status?
       emoji = EmojiData.all[rand(EmojiData.all.count)]
       logger.info "Emoji :#{emoji.short_name}: #{self}."
       slack_client.users_profile_set(profile: {
         status_text: Faker::GreekPhilosophers.quote,
         status_emoji: ":#{emoji.short_name}:"
       }.to_json)
-    elsif emoji_count == 0
+    elsif not_updating_status?
       logger.info "Removing emoji #{self}."
       slack_client.users_profile_set(profile: {
         status_text: nil,
