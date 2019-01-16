@@ -26,7 +26,7 @@ describe 'Teams', js: true, type: :feature do
       visit '/'
     end
     it 'displays index.html page' do
-      expect(title).to eq('Moji: More Emoji in Slack')
+      expect(title).to eq('More Moji: More Emoji in Slack')
     end
     it 'includes a link to add to slack with the client id' do
       expect(find("a[href='https://slack.com/oauth/authorize?scope=bot,commands&client_id=#{ENV['SLACK_CLIENT_ID']}']"))
