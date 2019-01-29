@@ -148,20 +148,32 @@ class User
     @slack_client ||= Slack::Web::Client.new(token: access_token)
   end
 
+  def unemoji!
+    logger.info "Removing emoji #{self}."
+    slack_client.users_profile_set(profile: {
+      status_text: nil,
+      status_emoji: nil
+    }.to_json)
+  rescue StandardError => e
+    logger.warn "Error emoji #{self}: #{e.message}."
+  end
+
+  def reemoji!
+    emoji = EmojiData.all[rand(EmojiData.all.count)]
+    logger.info "Emoji :#{emoji.short_name}: #{self}."
+    slack_client.users_profile_set(profile: {
+      status_text: Faker::GreekPhilosophers.quote,
+      status_emoji: ":#{emoji.short_name}:"
+    }.to_json)
+  rescue StandardError => e
+    logger.warn "Error emoji #{self}: #{e.message}."
+  end
+
   def emoji!
     if emoji_count && emoji_count > 0
-      emoji = EmojiData.all[rand(EmojiData.all.count)]
-      logger.info "Emoji :#{emoji.short_name}: #{self}."
-      slack_client.users_profile_set(profile: {
-        status_text: Faker::GreekPhilosophers.quote,
-        status_emoji: ":#{emoji.short_name}:"
-      }.to_json)
+      reemoji!
     elsif emoji_count == 0
-      logger.info "Removing emoji #{self}."
-      slack_client.users_profile_set(profile: {
-        status_text: nil,
-        status_emoji: nil
-      }.to_json)
+      unemoji!
     end
   end
 end

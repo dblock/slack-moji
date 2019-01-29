@@ -28,7 +28,12 @@ module SlackMoji
     def once_and_every(tt)
       ::Async::Reactor.run do |task|
         loop do
-          yield
+          begin
+            yield
+          rescue StandardError => e
+            backtrace = e.backtrace.join("\n")
+            logger.warn "Error in timer: #{e.message}, #{backtrace}."
+          end
           task.sleep tt
         end
       end
@@ -42,7 +47,8 @@ module SlackMoji
           next unless team.remaining_trial_days > 0 && team.remaining_trial_days <= 3
           team.inform_trial!
         rescue StandardError => e
-          logger.warn "Error checking team #{team} trial, #{e.message}."
+          backtrace = e.backtrace.join("\n")
+          logger.warn "Error checking team #{team} trial, #{e.message}, #{backtrace}."
         end
       end
     end
@@ -69,7 +75,8 @@ module SlackMoji
           purge_message = "Your subscription expired more than 2 weeks ago, deactivating. Reactivate at #{SlackMoji::Service.url}. Your data will be purged in another 2 weeks."
           team.inform_everyone!(text: purge_message)
         rescue StandardError => e
-          logger.warn "Error informing team #{team}, #{e.message}."
+          backtrace = e.backtrace.join("\n")
+          logger.warn "Error informing team #{team}, #{e.message}, #{backtrace}."
         end
       end
     end
@@ -93,7 +100,8 @@ module SlackMoji
             end
           end
         rescue StandardError => e
-          logger.warn "Error checking team #{team} subscription, #{e.message}."
+          backtrace = e.backtrace.join("\n")
+          logger.warn "Error checking team #{team} subscription, #{e.message}, #{backtrace}."
         end
       end
     end
@@ -101,16 +109,9 @@ module SlackMoji
     def emoji!
       log_info_without_repeat "Emoji for #{Team.active.count} team(s)."
       Team.active.each do |team|
-        begin
-          users = team.users.with_emoji
-          log_info_without_repeat "Emoji for #{team}, #{users.count} user(s)."
-          users.each do |user|
-            log_info_without_repeat " emoji #{user}"
-            user.emoji!
-          end
-        rescue StandardError => e
-          logger.warn "Error emoji team #{team}, #{e.message}."
-        end
+        users = team.users.with_emoji
+        log_info_without_repeat "Emoji for #{team}, #{users.count} user(s)."
+        users.each(&:emoji!)
       end
     end
   end

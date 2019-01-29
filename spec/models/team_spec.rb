@@ -77,9 +77,11 @@ describe Team do
   end
   context '#subscription_expired!' do
     let(:team) { Fabricate(:team, created_at: 2.weeks.ago) }
+    let!(:user) { Fabricate(:user, team: team, emoji: true, emoji_count: 1, access_token: 'token') }
     before do
       expect(team).to receive(:inform!).with(text: team.subscribe_text)
       expect(team).to receive(:inform_admin!).with(text: team.subscribe_text)
+      expect_any_instance_of(User).to receive(:unemoji!)
       team.subscription_expired!
     end
     it 'sets subscription_expired_at' do
@@ -89,6 +91,7 @@ describe Team do
       before do
         expect(team).to receive(:inform!).with(text: team.subscribed_text)
         expect(team).to receive(:inform_admin!).with(text: team.subscribed_text)
+        expect_any_instance_of(User).to receive(:emoji!)
         team.update_attributes!(subscribed: true)
       end
       it 'resets subscription_expired_at' do

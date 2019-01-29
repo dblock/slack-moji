@@ -77,6 +77,7 @@ class Team
     return if subscription_expired_at
     inform_everyone!(text: subscribe_text)
     update_attributes!(subscription_expired_at: Time.now.utc)
+    users.with_emoji.each(&:unemoji!)
   end
 
   def subscription_expired?
@@ -137,6 +138,7 @@ EOS
   def inform_subscribed_changed!
     return unless subscribed? && subscribed_changed?
     inform_everyone!(text: subscribed_text)
+    users.with_emoji.each(&:emoji!)
   end
 
   def bot_mention
