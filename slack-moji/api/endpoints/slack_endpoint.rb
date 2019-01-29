@@ -20,7 +20,9 @@ module Api
           command = SlackEndpointCommands::Command.new(params)
           command.slack_verification_token!
 
-          response = if command.user.access_token
+          response = if command.team.subscription_expired?
+                       { message: command.team.subscribe_text }
+                     elsif command.user.access_token
                        case command.action
                        when 'me' then
                          command.user.to_slack_emoji_question
@@ -69,13 +71,17 @@ module Api
           command = SlackEndpointCommands::Command.new(params)
           command.slack_verification_token!
 
-          case command.action
-          when 'emoji-count'
-            command.emoji_count!
-          when 'emoji-text' then
-            command.emoji_text!
+          if command.team.subscription_expired?
+            { message: command.team.subscribe_text }
           else
-            { message: "Sorry, I don't understand the `#{command.callback_id}` command." }
+            case command.action
+            when 'emoji-count'
+              command.emoji_count!
+            when 'emoji-text' then
+              command.emoji_text!
+            else
+              { message: "Sorry, I don't understand the `#{command.callback_id}` command." }
+            end
           end
         end
       end

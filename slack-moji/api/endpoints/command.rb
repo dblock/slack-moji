@@ -49,6 +49,10 @@ module Api
           )
         end
 
+        def team
+          user&.team
+        end
+
         def slack_verification_token!
           return unless ENV.key?('SLACK_VERIFICATION_TOKEN')
           return if token == ENV['SLACK_VERIFICATION_TOKEN']

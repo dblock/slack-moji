@@ -5,7 +5,7 @@ describe Api::Endpoints::SlackEndpoint do
 
   context 'with a SLACK_VERIFICATION_TOKEN' do
     let(:token) { 'slack-verification-token' }
-    let(:team) { Fabricate(:team) }
+    let(:team) { Fabricate(:team, subscribed: true) }
     let(:user) { Fabricate(:user, team: team) }
     before do
       ENV['SLACK_VERIFICATION_TOKEN'] = token
@@ -70,6 +70,25 @@ describe Api::Endpoints::SlackEndpoint do
           )
         end
       end
+      context 'subscription expired' do
+        let(:team) { Fabricate(:team, subscribed: false) }
+        it 'errors' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'me',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          expect(last_response.body).to eq({
+            message: team.subscribe_text,
+            user: user.user_id,
+            channel: 'C1'
+          }.to_json)
+        end
+      end
     end
     context 'interactive buttons' do
       context 'emoji-count' do
@@ -120,6 +139,25 @@ describe Api::Endpoints::SlackEndpoint do
             callback_id: 'emoji-text'
           }.to_json
           expect(last_response.status).to eq 201
+        end
+      end
+      context 'subscription expired' do
+        let(:team) { Fabricate(:team, subscribed: false) }
+        it 'errors' do
+          post '/api/slack/action', payload: {
+            type: 'message_action',
+            user: { id: user.user_id },
+            team: { id: team.team_id },
+            channel: { id: 'C1', name: 'moji' },
+            message_ts: '1547654324.000400',
+            message: { text: 'I love it when a dog barks.', type: 'text', user: 'U04KB5WQR', ts: '1547654324.000400' },
+            token: token,
+            callback_id: 'emoji-text'
+          }.to_json
+          expect(last_response.status).to eq 201
+          expect(last_response.body).to eq({
+            message: team.subscribe_text
+          }.to_json)
         end
       end
     end
