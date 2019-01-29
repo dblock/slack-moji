@@ -132,7 +132,7 @@ EOS
   end
 
   def subscribe_team_text
-    "Subscribe your team for $9.99 a year at #{SlackMoji::Service.url}/subscribe?team_id=#{team_id} to continue having emojis in your life."
+    "Subscribe your team for $9.99 a year at #{SlackMoji::Service.url}/subscribe?team_id=#{team_id} to continue randomizing emoji status."
   end
 
   def inform_subscribed_changed!
