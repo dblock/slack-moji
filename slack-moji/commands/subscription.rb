@@ -18,6 +18,8 @@ module SlackMoji
           end
           customer_info += "\n#{client.owner.update_cc_text}"
           client.say(channel: data.channel, text: customer_info)
+        elsif client.owner.subscribed?
+          client.say(channel: data.channel, text: 'Subscribed, free account. Lucky you!')
         else
           client.say(channel: data.channel, text: "Not a subscriber. #{client.owner.subscribe_text}")
         end

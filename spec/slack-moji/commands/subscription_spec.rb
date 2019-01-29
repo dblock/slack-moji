@@ -11,11 +11,19 @@ describe SlackMoji::Commands::Subscription, vcr: { cassette_name: 'slack/user_in
       )
     end
   end
-  context 'team without a customer ID' do
-    let!(:team) { Fabricate(:team, subscribed: true, stripe_customer_id: nil) }
+  context 'active, not a subscriber' do
+    let!(:team) { Fabricate(:team, created_at: 1.day.ago, stripe_customer_id: nil) }
     it 'errors' do
       expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(
         "Not a subscriber. Subscribe your team for $9.99 a year at #{SlackMoji::Service.url}/subscribe?team_id=#{team.team_id} to continue randomizing emoji status."
+      )
+    end
+  end
+  context 'active, subscribed = true' do
+    let!(:team) { Fabricate(:team, created_at: 1.day.ago, subscribed: true) }
+    it 'is lucky' do
+      expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(
+        'Subscribed, free account. Lucky you!'
       )
     end
   end
