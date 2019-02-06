@@ -149,24 +149,24 @@ class User
   end
 
   def unemoji!
-    logger.info "Removing emoji #{self}."
-    slack_client.users_profile_set(profile: {
-      status_text: nil,
-      status_emoji: nil
-    }.to_json)
-  rescue StandardError => e
-    logger.warn "Error emoji #{self}: #{e.message}."
+    handle_slack_error do
+      logger.info "Removing emoji #{self}."
+      slack_client.users_profile_set(profile: {
+        status_text: nil,
+        status_emoji: nil
+      }.to_json)
+    end
   end
 
   def reemoji!
-    emoji = EmojiData.all[rand(EmojiData.all.count)]
-    logger.info "Emoji :#{emoji.short_name}: #{self}."
-    slack_client.users_profile_set(profile: {
-      status_text: Faker::GreekPhilosophers.quote,
-      status_emoji: ":#{emoji.short_name}:"
-    }.to_json)
-  rescue StandardError => e
-    logger.warn "Error emoji #{self}: #{e.message}."
+    handle_slack_error do
+      emoji = EmojiData.all[rand(EmojiData.all.count)]
+      logger.info "Emoji :#{emoji.short_name}: #{self}."
+      slack_client.users_profile_set(profile: {
+        status_text: Faker::GreekPhilosophers.quote,
+        status_emoji: ":#{emoji.short_name}:"
+      }.to_json)
+    end
   end
 
   def emoji!
@@ -175,5 +175,21 @@ class User
     elsif emoji_count == 0
       unemoji!
     end
+  end
+
+  private
+
+  def handle_slack_error(&_block)
+    yield
+  rescue Slack::Web::Api::Errors::SlackError => e
+    case e.message
+    when 'token_revoked', 'account_inactive' then
+      logger.warn "Error #{self}: #{e.message}, disabling emoji."
+      update_attributes!(access_token: nil, emoji_count: 0, emoji: false)
+    else
+      logger.warn "Error #{self}: #{e.message}."
+    end
+  rescue StandardError => e
+    logger.warn "Error #{self}: #{e.message}."
   end
 end
