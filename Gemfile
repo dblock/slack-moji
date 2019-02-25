@@ -17,7 +17,6 @@ gem 'rack-robotz'
 gem 'rack-server-pages'
 gem 'ruby-enum'
 gem 'slack-ruby-bot-server'
-gem 'slack-ruby-client'
 gem 'stripe', '~> 1.58.0'
 gem 'wannabe_bool'
 
