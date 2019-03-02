@@ -58,7 +58,8 @@ describe User do
         code: 'code',
         redirect_uri: '/authorize'
       ).and_return(
-        'access_token' => 'access-token'
+        'access_token' => 'access-token',
+        'team_id' => user.team.team_id
       )
       expect(user).to receive(:dm!).with(
         text: "May the moji be with you!\nTo configure try `/moji me`."

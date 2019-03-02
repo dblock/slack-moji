@@ -137,6 +137,8 @@ class User
       redirect_uri: moji_authorize_uri
     )
 
+    raise SlackMoji::Error, "Please choose team \"#{team.name}\" instead of \"#{rc['team_name']}\"." unless rc['team_id'] == team.team_id
+
     update_attributes!(access_token: rc['access_token'], emoji_count: 1, emoji: true)
 
     dm!(text: "May the moji be with you!\nTo configure try `/moji me`.")
