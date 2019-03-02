@@ -38,11 +38,11 @@ describe Api::Endpoints::SlackEndpoint do
         expect(response).to eq(
           'text' => 'Please allow more emoji in your profile.',
           'attachments' => [
-            'fallback' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=/authorize&state=#{user.id}",
+            'fallback' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=/authorize&team=#{user.team.team_id}&state=#{user.id}",
             'actions' => [
               'type' => 'button',
               'text' => 'Allow Moji',
-              'url' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=/authorize&state=#{user.id}"
+              'url' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=/authorize&team=#{user.team.team_id}&state=#{user.id}"
             ]
           ],
           'user' => user.user_id,

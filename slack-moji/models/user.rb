@@ -83,7 +83,7 @@ class User
   end
 
   def slack_oauth_url
-    "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=#{ENV['SLACK_CLIENT_ID']}&redirect_uri=#{URI.encode(moji_authorize_uri)}&state=#{id}"
+    "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=#{ENV['SLACK_CLIENT_ID']}&redirect_uri=#{URI.encode(moji_authorize_uri)}&team=#{team.team_id}&state=#{id}"
   end
 
   def to_slack_auth_request
