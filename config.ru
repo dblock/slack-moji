@@ -19,7 +19,7 @@ SlackMoji::App.instance.prepare!
 Thread.abort_on_exception = true
 
 Thread.new do
-  SlackMoji::Service.instance.start_from_database!
+  SlackRubyBotServer::Service.instance.start_from_database!
   SlackMoji::App.instance.after_start!
 end
 

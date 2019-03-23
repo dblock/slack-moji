@@ -7,6 +7,7 @@ class Team
   field :subscription_expired_at, type: DateTime
   field :bot_user_id, type: String
   field :activated_user_id, type: String
+  field :activated_user_access_token
 
   field :trial_informed_at, type: DateTime
 
@@ -82,7 +83,8 @@ class Team
 
   def subscription_expired?
     return false if subscribed?
-    (created_at + 2.weeks) < Time.now
+    time_limit = Time.now - 2.weeks
+    created_at < time_limit
   end
 
   def subscribe_text
@@ -90,7 +92,7 @@ class Team
   end
 
   def update_cc_text
-    "Update your credit card info at #{SlackMoji::Service.url}/update_cc?team_id=#{team_id}."
+    "Update your credit card info at #{SlackRubyBotServer::Service.url}/update_cc?team_id=#{team_id}."
   end
 
   def subscribed_text
@@ -124,6 +126,13 @@ EOS
     update_attributes!(trial_informed_at: Time.now.utc)
   end
 
+  def tags
+    [
+      subscribed? ? 'subscribed' : 'trial',
+      stripe_customer_id? ? 'paid' : nil
+    ].compact
+  end
+
   private
 
   def trial_expired_text
@@ -132,7 +141,7 @@ EOS
   end
 
   def subscribe_team_text
-    "Subscribe your team for $9.99 a year at #{SlackMoji::Service.url}/subscribe?team_id=#{team_id} to continue randomizing emoji status."
+    "Subscribe your team for $9.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team_id} to continue randomizing emoji status."
   end
 
   def inform_subscribed_changed!

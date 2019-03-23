@@ -5,7 +5,7 @@ module SlackMoji
     © 2019 Daniel Doubrovkine & Contributors, MIT License
     https://twitter.com/dblockdotorg
 
-    Service at #{SlackMoji::Service.url}
+    Service at #{SlackRubyBotServer::Service.url}
     Open-Source at https://github.com/dblock/slack-moji
   EOS
 end

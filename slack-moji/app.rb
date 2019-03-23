@@ -72,7 +72,7 @@ module SlackMoji
         next unless team.asleep?
         begin
           team.deactivate!
-          purge_message = "Your subscription expired more than 2 weeks ago, deactivating. Reactivate at #{SlackMoji::Service.url}. Your data will be purged in another 2 weeks."
+          purge_message = "Your subscription expired more than 2 weeks ago, deactivating. Reactivate at #{SlackRubyBotServer::Service.url}. Your data will be purged in another 2 weeks."
           team.inform_everyone!(text: purge_message)
         rescue StandardError => e
           backtrace = e.backtrace.join("\n")

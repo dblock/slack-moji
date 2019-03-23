@@ -7,7 +7,7 @@ describe SlackMoji::Commands::Subscription, vcr: { cassette_name: 'slack/user_in
     let!(:team) { Fabricate(:team) }
     it 'is a subscription feature' do
       expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(
-        "Your trial subscription has expired. Subscribe your team for $9.99 a year at #{SlackMoji::Service.url}/subscribe?team_id=#{team.team_id} to continue randomizing emoji status."
+        "Your trial subscription has expired. Subscribe your team for $9.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team.team_id} to continue randomizing emoji status."
       )
     end
   end
@@ -15,7 +15,7 @@ describe SlackMoji::Commands::Subscription, vcr: { cassette_name: 'slack/user_in
     let!(:team) { Fabricate(:team, created_at: 1.day.ago, stripe_customer_id: nil) }
     it 'errors' do
       expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(
-        "Not a subscriber. Subscribe your team for $9.99 a year at #{SlackMoji::Service.url}/subscribe?team_id=#{team.team_id} to continue randomizing emoji status."
+        "Not a subscriber. Subscribe your team for $9.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team.team_id} to continue randomizing emoji status."
       )
     end
   end
