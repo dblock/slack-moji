@@ -153,11 +153,11 @@ GEM
     nokogiri (1.10.0)
       mini_portile2 (~> 2.4.0)
     oj (3.6.11)
-    parallel (1.12.1)
-    parser (2.5.3.0)
+    parallel (1.14.0)
+    parser (2.6.2.0)
       ast (~> 2.4.0)
     polylines (0.3.0)
-    powerpack (0.1.2)
+    psych (3.1.0)
     public_suffix (3.0.3)
     rack (2.0.6)
     rack-accept (0.4.5)
@@ -197,14 +197,14 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)
     rspec-support (3.8.0)
-    rubocop (0.62.0)
+    rubocop (0.66.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.5, != 2.5.1.1)
-      powerpack (~> 0.1)
+      psych (>= 3.1.0)
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (~> 1.4.0)
+      unicode-display_width (>= 1.4.0, < 1.6)
     ruby-enum (0.7.2)
       i18n
     ruby-progressbar (1.10.0)
@@ -254,7 +254,7 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.5)
-    unicode-display_width (1.4.1)
+    unicode-display_width (1.5.0)
     unicorn (5.5.0)
       kgio (~> 2.6)
       raindrops (~> 0.7)
@@ -302,7 +302,7 @@ DEPENDENCIES
   rack-test
   rake (~> 10.4)
   rspec
-  rubocop (= 0.62.0)
+  rubocop (= 0.66.0)
   ruby-enum
   selenium-webdriver
   slack-ruby-bot-server

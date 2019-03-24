@@ -24,7 +24,7 @@ gem 'wannabe_bool'
 group :development, :test do
   gem 'foreman'
   gem 'rake', '~> 10.4'
-  gem 'rubocop', '0.62.0'
+  gem 'rubocop', '0.66.0'
 end
 
 group :development do
