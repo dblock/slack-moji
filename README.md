@@ -11,6 +11,6 @@ You don't have enough emojis in Slack. Hosted at [moji.playplay.io](https://moji
 
 ### Copyright & License
 
-Copyright [Daniel Doubrovkine](http://code.dblock.org), 2019
+Copyright [Daniel Doubrovkine, Vestris LLC](https://www.vestris.com), 2019
 
 [MIT License](LICENSE)
