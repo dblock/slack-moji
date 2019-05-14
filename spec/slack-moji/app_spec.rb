@@ -5,7 +5,7 @@ describe SlackMoji::App do
     SlackMoji::App.instance
   end
   context '#instance' do
-    it 'is an instance of the strava app' do
+    it 'is an instance of the app' do
       expect(subject).to be_a_kind_of(SlackRubyBotServer::App)
       expect(subject).to be_an_instance_of(SlackMoji::App)
     end
