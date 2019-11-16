@@ -24,7 +24,7 @@ module Api
                        { message: command.team.subscribe_text }
                      elsif command.user.access_token
                        case command.action
-                       when 'me' then
+                       when 'me'
                          command.user.to_slack_emoji_question
                        else
                          { message: "Sorry, I don't understand the `#{command.action}` command." }
@@ -77,7 +77,7 @@ module Api
             case command.action
             when 'emoji-count'
               command.emoji_count!
-            when 'emoji-text' then
+            when 'emoji-text'
               command.emoji_text!
             else
               { message: "Sorry, I don't understand the `#{command.callback_id}` command." }
