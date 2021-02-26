@@ -29,9 +29,8 @@ class Team
   end
 
   def slack_channels
-    slack_client.channels_list(
-      exclude_archived: true,
-      exclude_members: true
+    slack_client.conversations_list(
+      exclude_archived: true
     )['channels'].select do |channel|
       channel['is_member']
     end
@@ -54,7 +53,7 @@ class Team
   # returns DM channel
   def inform_admin!(message)
     return unless activated_user_id
-    channel = slack_client.im_open(user: activated_user_id)
+    channel = slack_client.conversations_open(users: activated_user_id.to_s)
     message_with_channel = message.merge(channel: channel.channel.id, as_user: true)
     logger.info "Sending DM '#{message_with_channel.to_json}' to #{activated_user_id}."
     rc = slack_client.chat_postMessage(message_with_channel)
@@ -161,7 +160,7 @@ EOS
   def inform_activated!
     return unless active? && activated_user_id && bot_user_id
     return unless active_changed? || activated_user_id_changed?
-    im = slack_client.im_open(user: activated_user_id)
+    im = slack_client.conversations_open(users: activated_user_id.to_s)
     slack_client.chat_postMessage(
       text: activated_text,
       channel: im['channel']['id'],
