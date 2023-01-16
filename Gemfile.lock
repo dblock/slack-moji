@@ -1,14 +1,14 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (6.0.1)
-      activesupport (= 6.0.1)
-    activesupport (6.0.1)
+    activemodel (6.0.6)
+      activesupport (= 6.0.6)
+    activesupport (6.0.6)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-      zeitwerk (~> 2.2)
+      zeitwerk (~> 2.2, >= 2.2.2)
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
     ast (2.4.0)
@@ -16,15 +16,6 @@ GEM
       console (~> 1.0)
       nio4r (~> 2.3)
       timers (~> 4.1)
-    async-io (1.27.0)
-      async (~> 1.14)
-    async-websocket (0.8.0)
-      async-io
-      websocket-driver (~> 0.7.0)
-    axiom-types (0.1.1)
-      descendants_tracker (~> 0.0.4)
-      ice_nine (~> 0.11.0)
-      thread_safe (~> 0.3, >= 0.3.1)
     bson (4.6.0)
     builder (3.2.3)
     capybara (3.29.0)
@@ -36,9 +27,7 @@ GEM
       regexp_parser (~> 1.5)
       xpath (~> 3.2)
     childprocess (3.0.0)
-    coercible (1.0.0)
-      descendants_tracker (~> 0.0.1)
-    concurrent-ruby (1.1.5)
+    concurrent-ruby (1.1.10)
     console (1.5.0)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
@@ -46,13 +35,24 @@ GEM
     database_cleaner (1.7.0)
     declarative (0.0.10)
     declarative-option (0.1.0)
-    descendants_tracker (0.0.4)
-      thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.3)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
+    dry-core (1.0.0)
+      concurrent-ruby (~> 1.0)
+      zeitwerk (~> 2.6)
+    dry-inflector (1.0.0)
+    dry-logic (1.5.0)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 1.0, < 2)
+      zeitwerk (~> 2.6)
+    dry-types (1.7.0)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 1.0, < 2)
+      dry-inflector (~> 1.0, < 2)
+      dry-logic (>= 1.4, < 2)
+      zeitwerk (~> 2.6)
     emoji_data (0.2.0)
-    equalizer (0.0.11)
     fabrication (2.20.2)
     faker (2.7.0)
       i18n (>= 1.6, < 1.8)
@@ -76,13 +76,13 @@ GEM
       faraday_middleware-parse_oj (~> 0.3)
       launchy (~> 2.4)
     gli (2.19.0)
-    grape (1.2.4)
+    grape (1.7.0)
       activesupport
       builder
+      dry-types (>= 1.1)
       mustermann-grape (~> 1.0.0)
       rack (>= 1.3.0)
       rack-accept
-      virtus (>= 1.0.0)
     grape-roar (0.4.1)
       grape
       multi_json
@@ -104,9 +104,8 @@ GEM
       faraday_hal_middleware
       faraday_middleware
       net-http-digest_auth
-    i18n (1.7.0)
+    i18n (1.7.1)
       concurrent-ruby (~> 1.0)
-    ice_nine (0.11.2)
     jaro_winkler (1.5.4)
     kaminari-core (1.1.1)
     kaminari-grape (1.0.1)
@@ -122,12 +121,13 @@ GEM
     mime-types-data (3.2022.0105)
     mini_mime (1.0.2)
     mini_portile2 (2.8.1)
-    minitest (5.13.0)
+    minitest (5.17.0)
     mongo (2.11.1)
       bson (>= 4.6.0, < 5.0.0)
-    mongoid (7.0.5)
-      activemodel (>= 5.1, < 6.1)
-      mongo (>= 2.5.1, < 3.0.0)
+    mongoid (7.5.2)
+      activemodel (>= 5.1, < 7.1, != 7.0.0)
+      mongo (>= 2.10.5, < 3.0.0)
+      ruby2_keywords (~> 0.0.5)
     mongoid-compatibility (0.5.1)
       activesupport
       mongoid (>= 2.0)
@@ -209,16 +209,14 @@ GEM
     ruby-enum (0.7.2)
       i18n
     ruby-progressbar (1.10.1)
+    ruby2_keywords (0.0.5)
     rubyzip (2.0.0)
     safe_yaml (1.0.5)
     selenium-webdriver (3.142.6)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
-    slack-ruby-bot (0.12.0)
-      hashie
-      slack-ruby-client (>= 0.14.0)
-    slack-ruby-bot-server (0.11.1)
-      async-websocket (~> 0.8.0)
+    slack-ruby-bot-server (1.2.1)
+      async
       foreman
       grape
       grape-roar (>= 0.4.0)
@@ -227,7 +225,7 @@ GEM
       rack-cors
       rack-rewrite
       rack-server-pages
-      slack-ruby-bot (>= 0.12.0)
+      slack-ruby-client
     slack-ruby-bot-server-mailchimp (0.2.0)
       mailchimp_api_v3
       slack-ruby-bot-server (>= 0.10.0)
@@ -258,11 +256,6 @@ GEM
       kgio (~> 2.6)
       raindrops (~> 0.7)
     vcr (5.0.0)
-    virtus (1.0.5)
-      axiom-types (~> 0.1)
-      coercible (~> 1.0)
-      descendants_tracker (~> 0.0, >= 0.0.3)
-      equalizer (~> 0.0, >= 0.0.9)
     wannabe_bool (0.7.1)
     webmock (3.7.6)
       addressable (>= 2.3.6)
@@ -274,7 +267,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.2.1)
+    zeitwerk (2.6.6)
 
 PLATFORMS
   ruby
