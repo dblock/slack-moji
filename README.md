@@ -1,7 +1,7 @@
 Slack Moji
 ==========
 
-[![Build Status](https://travis-ci.org/dblock/slack-moji.svg?branch=master)](https://travis-ci.org/dblock/slack-moji)
+[![test](https://github.com/dblock/slack-moji/actions/workflows/test.yml/badge.svg)](https://github.com/dblock/slack-moji/actions/workflows/test.yml)
 
 You don't have enough emojis in Slack. Hosted at [moji.playplay.io](https://moji.playplay.io/).
 
