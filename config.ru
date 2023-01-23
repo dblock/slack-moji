@@ -8,7 +8,7 @@ Bundler.require :default, ENV['RACK_ENV']
 require 'slack-ruby-bot-server'
 require 'slack-moji'
 
-SlackRubyBotServer.configure do |config|
+SlackRubyBotServer::RealTime.configure do |config|
   config.server_class = SlackMoji::Server
 end
 
