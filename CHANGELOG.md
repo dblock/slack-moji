@@ -1,7 +1,8 @@
 ### Changelog
 
-* 2023/1/15: Only ping active teams - [@dblock](https://github.com/dblock).
-* 2023/1/15: Replace Travis-CI with GHA - [@dblock](https://github.com/dblock).
+* 2023/01/22: Upgrade to Ruby 3.0.5 - [@dblock](https://github.com/dblock).
+* 2023/01/15: Only ping active teams - [@dblock](https://github.com/dblock).
+* 2023/01/15: Replace Travis-CI with GHA - [@dblock](https://github.com/dblock).
 * 2022/12/10: Upgrade to Ruby 2.7.7 - [@dblock](https://github.com/dblock).
 * 2021/02/26: Replace deprecated methods - [@dblock](https://github.com/dblock).
 * 2020/04/24: Added integration tests for subscriptions - [@dblock](https://github.com/dblock).

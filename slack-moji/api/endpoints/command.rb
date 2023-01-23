@@ -2,7 +2,8 @@ module Api
   module Endpoints
     class SlackEndpointCommands
       class Command
-        attr_reader :action, :arg, :channel_id, :channel_name, :user_id, :team_id, :text, :image_url, :token, :response_url, :trigger_id, :type, :submission, :message_ts
+        attr_reader :action, :arg, :channel_id, :channel_name, :user_id, :team_id, :text, :image_url, :token,
+                    :response_url, :trigger_id, :type, :submission, :message_ts
 
         def initialize(params)
           if params.key?(:payload)
@@ -69,7 +70,7 @@ module Api
 
         def emoji_text!
           case type
-          when 'message_action' then
+          when 'message_action'
             text.scan(/\w{3,}/) do |word|
               emojis = EmojiData.find_by_short_name(word)
               next unless emojis&.any?

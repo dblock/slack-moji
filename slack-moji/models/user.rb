@@ -23,7 +23,13 @@ class User
   end
 
   def self.find_by_slack_mention!(team, user_name)
-    query = user_name =~ /^<@(.*)>$/ ? { user_id: ::Regexp.last_match[1] } : { user_name: ::Regexp.new("^#{user_name}$", 'i') }
+    query = if user_name =~ /^<@(.*)>$/
+              { user_id: ::Regexp.last_match[1] }
+            else
+              { user_name: ::Regexp.new(
+                "^#{user_name}$", 'i'
+              ) }
+            end
     user = User.where(query.merge(team: team)).first
     raise SlackMoji::Error, "I don't know who #{user_name} is!" unless user
     user
@@ -31,16 +37,19 @@ class User
 
   def self.find_create_or_update_by_team_and_slack_id!(team_id, user_id)
     team = Team.where(team_id: team_id).first || raise("Cannot find team ID #{team_id}")
-    user = User.where(team: team, user_id: user_id).first || User.create!(team: team, user_id: user_id)
-    user
+    User.where(team: team, user_id: user_id).first || User.create!(team: team, user_id: user_id)
   end
 
   # Find an existing record, update the username if necessary, otherwise create a user record.
   def self.find_create_or_update_by_slack_id!(client, slack_id)
     instance = User.where(team: client.owner, user_id: slack_id).first
     instance_info = Hashie::Mash.new(client.web_client.users_info(user: slack_id)).user
-    instance.update_attributes!(user_name: instance_info.name, is_bot: instance_info.is_bot) if instance && (instance.user_name != instance_info.name || instance.is_bot != instance_info.is_bot)
-    instance ||= User.create!(team: client.owner, user_id: slack_id, user_name: instance_info.name, is_bot: instance_info.is_bot)
+    if instance && (instance.user_name != instance_info.name || instance.is_bot != instance_info.is_bot)
+      instance.update_attributes!(user_name: instance_info.name,
+                                  is_bot: instance_info.is_bot)
+    end
+    instance ||= User.create!(team: client.owner, user_id: slack_id, user_name: instance_info.name,
+                              is_bot: instance_info.is_bot)
     instance
   end
 
@@ -79,11 +88,12 @@ class User
   end
 
   def moji_authorize_uri
-    "#{ENV['APP_URL']}/authorize"
+    "#{ENV.fetch('APP_URL', nil)}/authorize"
   end
 
   def slack_oauth_url
-    "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=#{ENV['SLACK_CLIENT_ID']}&redirect_uri=#{URI.encode(moji_authorize_uri)}&team=#{team.team_id}&state=#{id}"
+    "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=#{ENV.fetch('SLACK_CLIENT_ID',
+                                                                                       nil)}&redirect_uri=#{CGI.escape(moji_authorize_uri)}&team=#{team.team_id}&state=#{id}"
   end
 
   def to_slack_auth_request
@@ -131,13 +141,16 @@ class User
 
   def authorize!(code)
     rc = team.slack_client.oauth_access(
-      client_id: ENV['SLACK_CLIENT_ID'],
-      client_secret: ENV['SLACK_CLIENT_SECRET'],
+      client_id: ENV.fetch('SLACK_CLIENT_ID', nil),
+      client_secret: ENV.fetch('SLACK_CLIENT_SECRET', nil),
       code: code,
       redirect_uri: moji_authorize_uri
     )
 
-    raise SlackMoji::Error, "Please choose team \"#{team.name}\" instead of \"#{rc['team_name']}\"." unless rc['team_id'] == team.team_id
+    unless rc['team_id'] == team.team_id
+      raise SlackMoji::Error,
+            "Please choose team \"#{team.name}\" instead of \"#{rc['team_name']}\"."
+    end
 
     update_attributes!(access_token: rc['access_token'], emoji_count: 1, emoji: true)
 
@@ -185,7 +198,7 @@ class User
     yield
   rescue Slack::Web::Api::Errors::SlackError => e
     case e.message
-    when 'token_revoked', 'account_inactive' then
+    when 'token_revoked', 'account_inactive'
       logger.warn "Error #{self}: #{e.message}, disabling emoji."
       update_attributes!(access_token: nil, emoji_count: 0, emoji: false)
     else

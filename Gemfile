@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-ruby '2.7.7'
+ruby '3.0.5'
 
 gem 'emoji_data'
 gem 'faker'
@@ -15,6 +15,7 @@ gem 'nokogiri'
 gem 'polylines'
 gem 'rack-robotz'
 gem 'rack-server-pages'
+gem 'rexml'
 gem 'ruby-enum'
 gem 'slack-ruby-bot-server-mailchimp'
 gem 'slack-ruby-bot-server-rtm'
@@ -25,7 +26,9 @@ gem 'wannabe_bool'
 group :development, :test do
   gem 'foreman'
   gem 'rake', '~> 12.3'
-  gem 'rubocop', '0.76.0'
+  gem 'rubocop', '1.43.0'
+  gem 'rubocop-rake'
+  gem 'rubocop-rspec'
 end
 
 group :development do
