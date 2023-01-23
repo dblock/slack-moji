@@ -6,9 +6,9 @@ class User
   field :user_name, type: String
   field :access_token, type: String
 
-  field :emoji, type: Boolean, default: false
+  field :emoji, type: Mongoid::Boolean, default: false
   field :emoji_count, type: Integer, default: 0
-  field :is_bot, type: Boolean, default: false
+  field :is_bot, type: Mongoid::Boolean, default: false
 
   belongs_to :team, index: true
   validates_presence_of :team

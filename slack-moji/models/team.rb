@@ -1,8 +1,8 @@
 class Team
-  field :api, type: Boolean, default: false
+  field :api, type: Mongoid::Boolean, default: false
 
   field :stripe_customer_id, type: String
-  field :subscribed, type: Boolean, default: false
+  field :subscribed, type: Mongoid::Boolean, default: false
   field :subscribed_at, type: DateTime
   field :subscription_expired_at, type: DateTime
 
