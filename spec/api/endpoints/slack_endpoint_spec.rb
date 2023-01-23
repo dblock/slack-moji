@@ -7,9 +7,15 @@ describe Api::Endpoints::SlackEndpoint do
     let(:token) { 'slack-verification-token' }
     let(:team) { Fabricate(:team, subscribed: true) }
     let(:user) { Fabricate(:user, team: team) }
+
     before do
       ENV['SLACK_VERIFICATION_TOKEN'] = token
     end
+
+    after do
+      ENV.delete('SLACK_VERIFICATION_TOKEN')
+    end
+
     context 'slash commands' do
       it 'returns an error with a non-matching verification token' do
         post '/api/slack/command',
@@ -24,6 +30,7 @@ describe Api::Endpoints::SlackEndpoint do
         response = JSON.parse(last_response.body)
         expect(response['error']).to eq 'Message token is not coming from Slack.'
       end
+
       it 'generates a link to authorize the user with moji' do
         post '/api/slack/command',
              command: '/moji',
@@ -38,21 +45,23 @@ describe Api::Endpoints::SlackEndpoint do
         expect(response).to eq(
           'text' => 'Please allow more emoji in your profile.',
           'attachments' => [
-            'fallback' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=/authorize&team=#{user.team.team_id}&state=#{user.id}",
+            'fallback' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=%2Fauthorize&team=#{user.team.team_id}&state=#{user.id}",
             'actions' => [
               'type' => 'button',
               'text' => 'Allow Moji',
-              'url' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=/authorize&team=#{user.team.team_id}&state=#{user.id}"
+              'url' => "https://slack.com/oauth/authorize?scope=users.profile:write&client_id=&redirect_uri=%2Fauthorize&team=#{user.team.team_id}&state=#{user.id}"
             ]
           ],
           'user' => user.user_id,
           'channel' => 'C1'
         )
       end
+
       context 'with a user authorized with moji' do
         before do
           user.update_attributes!(access_token: 'slack-access-token')
         end
+
         it 'generates user options' do
           post '/api/slack/command',
                command: '/moji',
@@ -70,8 +79,10 @@ describe Api::Endpoints::SlackEndpoint do
           )
         end
       end
+
       context 'subscription expired' do
         let(:team) { Fabricate(:team, subscribed: false) }
+
         it 'errors' do
           post '/api/slack/command',
                command: '/moji',
@@ -90,6 +101,7 @@ describe Api::Endpoints::SlackEndpoint do
         end
       end
     end
+
     context 'interactive buttons' do
       context 'emoji-count' do
         it 'sets no emoji' do
@@ -108,6 +120,7 @@ describe Api::Endpoints::SlackEndpoint do
             user.to_slack_emoji_question('Got it, no emoji.').to_json
           )
         end
+
         it 'sets emoji' do
           expect_any_instance_of(User).to receive(:emoji!)
           post '/api/slack/action', payload: {
@@ -125,9 +138,10 @@ describe Api::Endpoints::SlackEndpoint do
           )
         end
       end
+
       context 'emoji-text' do
         it 'parses and converts emoji' do
-          expect_any_instance_of(Slack::Web::Client).to receive(:reactions_add).exactly(2).times
+          expect_any_instance_of(Slack::Web::Client).to receive(:reactions_add).twice
           post '/api/slack/action', payload: {
             type: 'message_action',
             user: { id: user.user_id },
@@ -141,8 +155,10 @@ describe Api::Endpoints::SlackEndpoint do
           expect(last_response.status).to eq 201
         end
       end
+
       context 'subscription expired' do
         let(:team) { Fabricate(:team, subscribed: false) }
+
         it 'errors' do
           post '/api/slack/action', payload: {
             type: 'message_action',
@@ -160,9 +176,6 @@ describe Api::Endpoints::SlackEndpoint do
           }.to_json)
         end
       end
-    end
-    after do
-      ENV.delete('SLACK_VERIFICATION_TOKEN')
     end
   end
 end
