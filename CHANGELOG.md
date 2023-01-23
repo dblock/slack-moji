@@ -1,6 +1,6 @@
 ### Changelog
 
-* 2023/01/22: Upgrade to Ruby 3.0.5 - [@dblock](https://github.com/dblock).
+* 2023/01/22: Upgrade to Ruby 3.2.0 - [@dblock](https://github.com/dblock).
 * 2023/01/15: Only ping active teams - [@dblock](https://github.com/dblock).
 * 2023/01/15: Replace Travis-CI with GHA - [@dblock](https://github.com/dblock).
 * 2022/12/10: Upgrade to Ruby 2.7.7 - [@dblock](https://github.com/dblock).
