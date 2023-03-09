@@ -166,7 +166,7 @@ GEM
     polylines (0.3.0)
     public_suffix (5.0.1)
     racc (1.6.2)
-    rack (2.2.6.2)
+    rack (3.0.4.2)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-cors (1.1.1)
