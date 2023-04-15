@@ -94,7 +94,7 @@ describe User do
         expect(user.slack_client).to receive(:users_profile_set) do |arg|
           profile = JSON.parse(arg[:profile])
           expect(profile['status_emoji']).not_to be_nil
-          expect(profile['status_emoji']).to match /^:\w*:$/
+          expect(profile['status_emoji']).to match /^:[\w_-]*:$/
           expect(profile['status_text']).not_to be_nil
         end
         user.emoji!
