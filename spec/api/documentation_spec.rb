@@ -12,13 +12,13 @@ describe Api do
     it 'documents root level apis' do
       expect(subject['paths'].keys).to eq [
         '/api/status',
-        '/api/teams',
         '/api/teams/{id}',
+        '/api/teams',
         '/api/users/{id}',
         '/api/subscriptions',
         '/api/credit_cards',
-        '/api/slack/action',
-        '/api/slack/command'
+        '/api/slack/command',
+        '/api/slack/action'
       ]
     end
   end
@@ -30,7 +30,7 @@ describe Api do
     end
 
     it 'documents teams apis' do
-      expect(subject['paths'].keys).to eq ['/api/teams', '/api/teams/{id}']
+      expect(subject['paths'].keys).to eq ['/api/teams/{id}', '/api/teams']
     end
   end
 end

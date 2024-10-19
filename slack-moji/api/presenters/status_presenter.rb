@@ -16,6 +16,7 @@ module Api
       def ping
         team = Team.active.asc(:_id).first
         return unless team
+
         team.ping!
       end
 

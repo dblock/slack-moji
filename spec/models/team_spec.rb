@@ -10,13 +10,13 @@ describe Team do
 
     it 'destroys teams inactive for two weeks' do
       expect {
-        Team.purge!
-      }.to change(Team, :count).by(-2)
-      expect(Team.find(active_team.id)).to eq active_team
-      expect(Team.find(inactive_team.id)).to eq inactive_team
-      expect(Team.find(inactive_team_one_week_ago.id)).to eq inactive_team_one_week_ago
-      expect(Team.find(inactive_team_two_weeks_ago.id)).to be_nil
-      expect(Team.find(inactive_team_a_month_ago.id)).to be_nil
+        described_class.purge!
+      }.to change(described_class, :count).by(-2)
+      expect(described_class.find(active_team.id)).to eq active_team
+      expect(described_class.find(inactive_team.id)).to eq inactive_team
+      expect(described_class.find(inactive_team_one_week_ago.id)).to eq inactive_team_one_week_ago
+      expect(described_class.find(inactive_team_two_weeks_ago.id)).to be_nil
+      expect(described_class.find(inactive_team_a_month_ago.id)).to be_nil
     end
   end
 
@@ -76,8 +76,8 @@ describe Team do
     let!(:user) { Fabricate(:user, team: team, emoji: true, emoji_count: 1, access_token: 'token') }
 
     before do
-      expect(team).to receive(:inform!).with(text: team.subscribe_text)
-      expect(team).to receive(:inform_admin!).with(text: team.subscribe_text)
+      expect(team).to receive(:inform!).with({ text: team.subscribe_text })
+      expect(team).to receive(:inform_admin!).with({ text: team.subscribe_text })
       expect_any_instance_of(User).to receive(:unemoji!)
       team.subscription_expired!
     end
@@ -88,8 +88,8 @@ describe Team do
 
     context '(re)subscribed' do
       before do
-        expect(team).to receive(:inform!).with(text: team.subscribed_text)
-        expect(team).to receive(:inform_admin!).with(text: team.subscribed_text)
+        expect(team).to receive(:inform!).with({ text: team.subscribed_text })
+        expect(team).to receive(:inform_admin!).with({ text: team.subscribed_text })
         expect_any_instance_of(User).to receive(:emoji!)
         team.update_attributes!(subscribed: true)
       end
@@ -152,12 +152,12 @@ describe Team do
       end
 
       it '1 week ago' do
-        expect(team_created_1_week_ago).to receive(:inform!).with(
-          text: "Your trial subscription expires in 6 days. #{team_created_1_week_ago.subscribe_text}"
-        )
-        expect(team_created_1_week_ago).to receive(:inform_admin!).with(
-          text: "Your trial subscription expires in 6 days. #{team_created_1_week_ago.subscribe_text}"
-        )
+        expect(team_created_1_week_ago).to receive(:inform!).with({
+                                                                    text: "Your trial subscription expires in 6 days. #{team_created_1_week_ago.subscribe_text}"
+                                                                  })
+        expect(team_created_1_week_ago).to receive(:inform_admin!).with({
+                                                                          text: "Your trial subscription expires in 6 days. #{team_created_1_week_ago.subscribe_text}"
+                                                                        })
         team_created_1_week_ago.inform_trial!
       end
 

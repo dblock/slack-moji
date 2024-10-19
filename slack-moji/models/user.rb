@@ -32,6 +32,7 @@ class User
             end
     user = User.where(query.merge(team: team)).first
     raise SlackMoji::Error, "I don't know who #{user_name} is!" unless user
+
     user
   end
 
@@ -56,6 +57,7 @@ class User
   def inform!(message)
     team.slack_channels.map { |channel|
       next if user_id && !user_in_channel?(channel['id'])
+
       message_with_channel = message.merge(channel: channel['id'], as_user: true)
       logger.info "Posting '#{message_with_channel.to_json}' to #{team} on ##{channel['name']}."
       rc = team.slack_client.chat_postMessage(message_with_channel)
@@ -77,7 +79,7 @@ class User
   end
 
   def emoji_count?
-    !emoji_count.nil? || emoji_count == 0
+    !emoji_count.nil? || emoji_count.zero?
   end
 
   def emoji_text
@@ -124,7 +126,7 @@ class User
               text: 'No Emoji',
               type: 'button',
               value: 0,
-              style: emoji_count == 0 ? 'primary' : 'default'
+              style: emoji_count.zero? ? 'primary' : 'default'
             },
             {
               name: 'emoji-count',
@@ -185,16 +187,16 @@ class User
   end
 
   def emoji!
-    if emoji_count && emoji_count > 0
+    if emoji_count&.positive?
       reemoji!
-    elsif emoji_count == 0
+    elsif emoji_count.zero?
       unemoji!
     end
   end
 
   private
 
-  def handle_slack_error(&_block)
+  def handle_slack_error(&)
     yield
   rescue Slack::Web::Api::Errors::SlackError => e
     case e.message

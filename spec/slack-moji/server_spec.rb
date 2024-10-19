@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe SlackMoji::Server do
   let(:team) { Fabricate(:team) }
-  let(:server) { SlackMoji::Server.new(team: team) }
+  let(:server) { described_class.new(team: team) }
   let(:client) { server.send(:client) }
 
   context 'hooks' do

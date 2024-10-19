@@ -2,13 +2,13 @@ require 'spec_helper'
 
 describe SlackMoji::App do
   subject do
-    SlackMoji::App.instance
+    described_class.instance
   end
 
   describe '#instance' do
     it 'is an instance of the app' do
       expect(subject).to be_a(SlackRubyBotServer::App)
-      expect(subject).to be_an_instance_of(SlackMoji::App)
+      expect(subject).to be_an_instance_of(described_class)
     end
   end
 
@@ -89,7 +89,9 @@ describe SlackMoji::App do
     let!(:active_team_twelve_days_ago) { Fabricate(:team, created_at: 12.days.ago) }
 
     it 'notifies teams' do
-      expect_any_instance_of(Team).to receive(:inform_everyone!).with(text: active_team_twelve_days_ago.trial_message)
+      expect_any_instance_of(Team).to receive(:inform_everyone!).with({
+                                                                        text: active_team_twelve_days_ago.trial_message
+                                                                      })
       subject.send(:check_trials!)
     end
   end

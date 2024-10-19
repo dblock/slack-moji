@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Users', js: true, type: :feature do
+describe 'Users', :js, type: :feature do
   let!(:user) { Fabricate(:user) }
 
   context 'oauth', vcr: { cassette_name: 'auth_test' } do

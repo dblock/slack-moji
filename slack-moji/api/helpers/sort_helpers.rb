@@ -6,6 +6,7 @@ module Api
       def sort_order(options = {})
         params[:sort] = options[:default_sort_order] unless params[:sort]
         return [] unless params[:sort]
+
         sort_order = params[:sort].to_s
         unless options[:default_sort_order] == sort_order
           supported_sort_orders = route_sort
@@ -20,7 +21,7 @@ module Api
           sort_order = {}
           if sort_entry[0] == '-'
             sort_order[:direction] = :desc
-            sort_order[:column] = sort_entry[1..-1]
+            sort_order[:column] = sort_entry[1..]
           else
             sort_order[:direction] = :asc
             sort_order[:column] = sort_entry
@@ -45,7 +46,7 @@ module Api
             error!("Cannot sort #{coll.class.name}", 500)
           end
         end
-        coll = coll.is_a?(Module) && coll.respond_to?(:all) ? coll.all : coll
+        coll.is_a?(Module) && coll.respond_to?(:all) ? coll.all : coll
       end
     end
   end

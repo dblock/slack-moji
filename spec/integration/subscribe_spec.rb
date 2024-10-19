@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Subscribe', js: true, type: :feature do
+describe 'Subscribe', :js, type: :feature do
   context 'without team_id' do
     before do
       visit '/subscribe'
@@ -57,6 +57,7 @@ describe 'Subscribe', js: true, type: :feature do
       expect(team.stripe_customer_id).to eq 'customer_id'
     end
   end
+
   context 'with a stripe key' do
     before do
       ENV['STRIPE_API_PUBLISHABLE_KEY'] = 'pk_test_804U1vUeVeTxBl8znwriXskf'

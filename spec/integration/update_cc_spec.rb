@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Update cc', js: true, type: :feature do
+describe 'Update cc', :js, type: :feature do
   context 'with a stripe key' do
     before do
       ENV['STRIPE_API_PUBLISHABLE_KEY'] = 'pk_test_804U1vUeVeTxBl8znwriXskf'

@@ -20,6 +20,7 @@ describe Api::Endpoints::RootEndpoint do
       next if href == 'http://example.org/api/subscriptions'
       next if href == 'http://example.org/api/credit_cards'
       next if href == 'http://example.org/api/users'
+
       get href.gsub('http://example.org', '')
       expect(last_response.status).to eq 200
       expect(JSON.parse(last_response.body)).not_to eq({})

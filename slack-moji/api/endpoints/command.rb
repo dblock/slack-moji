@@ -63,7 +63,7 @@ module Api
 
         def emoji_count!
           emoji_count = arg.to_i
-          user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count > 0)
+          user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count.positive?)
           user.emoji!
           user.to_slack_emoji_question("Got it, #{user.emoji_text.downcase}.")
         end

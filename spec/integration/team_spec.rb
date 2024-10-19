@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Teams', js: true, type: :feature do
+describe 'Teams', :js, type: :feature do
   before do
     ENV['SLACK_CLIENT_ID'] = 'client_id'
     ENV['SLACK_CLIENT_SECRET'] = 'client_secret'

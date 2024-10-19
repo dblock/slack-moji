@@ -20,6 +20,7 @@ class Team
 
   def asleep?(dt = 2.weeks)
     return false unless subscription_expired?
+
     time_limit = Time.now - dt
     created_at <= time_limit
   end
@@ -53,6 +54,7 @@ class Team
   # returns DM channel
   def inform_admin!(message)
     return unless activated_user_id
+
     channel = slack_client.conversations_open(users: activated_user_id.to_s)
     message_with_channel = message.merge(channel: channel.channel.id, as_user: true)
     logger.info "Sending DM '#{message_with_channel.to_json}' to #{activated_user_id}."
@@ -72,6 +74,7 @@ class Team
   def subscription_expired!
     return unless subscription_expired?
     return if subscription_expired_at
+
     inform_everyone!(text: subscribe_text)
     update_attributes!(subscription_expired_at: Time.now.utc)
     users.with_emoji.each(&:unemoji!)
@@ -79,6 +82,7 @@ class Team
 
   def subscription_expired?
     return false if subscribed?
+
     time_limit = Time.now - 2.weeks
     created_at < time_limit
   end
@@ -95,22 +99,28 @@ class Team
     <<~EOS.freeze
       Your team has been subscribed. Thank you!
       Follow https://twitter.com/playplayio for news and updates.
-EOS
+    EOS
   end
 
   def trial_ends_at
     raise 'Team is subscribed.' if subscribed?
+
     created_at + 2.weeks
   end
 
   def remaining_trial_days
     raise 'Team is subscribed.' if subscribed?
+
     [0, (trial_ends_at.to_date - Time.now.utc.to_date).to_i].max
   end
 
   def trial_message
     [
-      remaining_trial_days.zero? ? 'Your trial subscription has expired.' : "Your trial subscription expires in #{remaining_trial_days} day#{remaining_trial_days == 1 ? '' : 's'}.",
+      if remaining_trial_days.zero?
+        'Your trial subscription has expired.'
+      else
+        "Your trial subscription expires in #{remaining_trial_days} day#{remaining_trial_days == 1 ? '' : 's'}."
+      end,
       subscribe_text
     ].join(' ')
   end
@@ -118,6 +128,7 @@ EOS
   def inform_trial!
     return if subscribed? || subscription_expired?
     return if trial_informed_at && (Time.now.utc < trial_informed_at + 7.days)
+
     inform_everyone!(text: trial_message)
     update_attributes!(trial_informed_at: Time.now.utc)
   end
@@ -133,6 +144,7 @@ EOS
 
   def trial_expired_text
     return unless subscription_expired?
+
     'Your trial subscription has expired.'
   end
 
@@ -141,7 +153,8 @@ EOS
   end
 
   def inform_subscribed_changed!
-    return unless subscribed? && subscribed_changed?
+    return unless subscribed? && (subscribed_changed? || saved_change_to_subscribed?)
+
     inform_everyone!(text: subscribed_text)
     users.with_emoji.each(&:emoji!)
   end
@@ -154,12 +167,13 @@ EOS
     <<~EOS
       Welcome to Moji!
       Use `/moji me` to get more emoji in your profile.
-EOS
+    EOS
   end
 
   def inform_activated!
     return unless active? && activated_user_id && bot_user_id
-    return unless active_changed? || activated_user_id_changed?
+    return unless active_changed? || activated_user_id_changed? || saved_change_to_active? || saved_change_to_activated_user_id?
+
     im = slack_client.conversations_open(users: activated_user_id.to_s)
     slack_client.chat_postMessage(
       text: activated_text,

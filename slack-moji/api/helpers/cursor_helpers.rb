@@ -7,10 +7,11 @@ module Api
       # returns a hash:
       #   results: (paginated collection subset)
       #   next: (cursor to the next page)
-      def paginate_by_cursor(coll, &_block)
+      def paginate_by_cursor(coll, &)
         if params.key?(:offset) && params.key?(:cursor)
           raise 'Both cursor and offset parameters are present, these are mutually exclusive.'
         end
+
         results = { results: [], next: nil }
         size = (params[:size] || 10).to_i
         if params.key?(:offset)
@@ -29,8 +30,8 @@ module Api
         results
       end
 
-      def paginate_and_sort_by_cursor(coll, options = {}, &block)
-        Hashie::Mash.new(paginate_by_cursor(sort(coll, options), &block))
+      def paginate_and_sort_by_cursor(coll, options = {}, &)
+        Hashie::Mash.new(paginate_by_cursor(sort(coll, options), &))
       end
     end
   end

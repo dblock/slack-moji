@@ -65,6 +65,7 @@ describe SlackMoji::Commands::Subscription, vcr: { cassette_name: 'slack/user_in
       end
     end
   end
+
   context 'subscription team' do
     let!(:team) { Fabricate(:team, subscribed: true) }
 

@@ -126,14 +126,11 @@ describe Api::Endpoints::TeamsEndpoint do
 
         after do
           SlackRubyBotServer::Mailchimp.config.reset!
-        end
-
-        let(:list) { double(Mailchimp::List, members: double(Mailchimp::List::Members)) }
-
-        after do
           ENV.delete('MAILCHIMP_API_KEY')
           ENV.delete('MAILCHIMP_LIST_ID')
         end
+
+        let(:list) { double(Mailchimp::List, members: double(Mailchimp::List::Members)) }
 
         it 'subscribes to the mailing list' do
           expect(SlackRubyBotServer::Service.instance).to receive(:start!)
