@@ -4,7 +4,15 @@ $(document).ready(function() {
 
   SlackMoji.message = function(text) {
     $('#messages').fadeOut('slow', function() {
+      $('#messages').removeClass('has-error');
       $('#messages').fadeIn('slow').html(text)
+  });
+};
+
+  SlackMoji.errorMessage = function(text) {
+    $('#messages').fadeOut('slow', function() {
+        $('#messages').addClass('has-error');
+        $('#messages').fadeIn('slow').html(text)
     });
   };
 
@@ -27,10 +35,10 @@ $(document).ready(function() {
         }
       }
 
-      SlackMoji.message(message || xhr.statusText || xhr.responseText || 'Unexpected Error');
+      SlackMoji.errorMessage(message || xhr.statusText || xhr.responseText || 'Unexpected Error');
 
     } catch(err) {
-      SlackMoji.message(err.message);
+      SlackMoji.errorMessage(err.message);
     }
   };
 

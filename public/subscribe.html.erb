@@ -26,9 +26,9 @@
           <% team = Team.where(team_id: request.params['team_id']).first %>
 
           var team = {
-            id: '<%= team && team.team_id %>',
-            name: '<%= team && team.name %>',
-            subscribed: <%= !!(team && team.subscribed) %>,
+            id: "<%= team&.team_id %>",
+            name: <%= JSON::generate(ERB::Util.html_escape(team&.name)) %>,
+            subscribed: <%= !!(team&.subscribed) %>
           }
 
           if (team.subscribed) {
@@ -38,7 +38,7 @@
             SlackMoji.message('Subscribe team <b>' + team.name + '</b> for $9.99/yr.');
           } else {
             $('#subscribeButton').remove();
-            SlackMoji.message('Missing or invalid team ID.');
+            SlackMoji.errorMessage('Missing or invalid team ID.');
           }
 
           var handler = StripeCheckout.configure({
