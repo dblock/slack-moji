@@ -186,7 +186,7 @@ GEM
     polylines (0.4.0)
     public_suffix (6.0.1)
     racc (1.8.1)
-    rack (3.0.14)
+    rack (3.0.16)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
     rack-rewrite (1.5.1)
@@ -339,7 +339,7 @@ DEPENDENCIES
   nokogiri
   ostruct
   polylines
-  rack (~> 3.0.14)
+  rack (~> 3.0.16)
   rack-robotz
   rack-server-pages
   rack-test
