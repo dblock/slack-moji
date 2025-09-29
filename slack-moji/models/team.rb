@@ -119,7 +119,7 @@ class Team
       if remaining_trial_days.zero?
         'Your trial subscription has expired.'
       else
-        "Your trial subscription expires in #{remaining_trial_days} day#{remaining_trial_days == 1 ? '' : 's'}."
+        "Your trial subscription expires in #{remaining_trial_days} day#{'s' unless remaining_trial_days == 1}."
       end,
       subscribe_text
     ].join(' ')
