@@ -13,15 +13,15 @@ gem 'newrelic_rpm'
 gem 'nokogiri'
 gem 'ostruct'
 gem 'polylines'
+gem 'puma'
 gem 'rack', '~> 3.0.16'
 gem 'rack-robotz'
 gem 'rack-server-pages'
 gem 'rexml'
 gem 'ruby-enum'
 gem 'slack-ruby-bot-server-mailchimp'
-gem 'slack-ruby-bot-server-rtm'
+gem 'slack-ruby-bot-server-rtm', '~> 0.3.0'
 gem 'stripe', '~> 1.58.0'
-gem 'unicorn'
 gem 'wannabe_bool'
 
 group :development, :test do
@@ -51,5 +51,4 @@ group :test do
   gem 'timecop'
   gem 'vcr'
   gem 'webmock'
-  gem 'webrick'
 end
