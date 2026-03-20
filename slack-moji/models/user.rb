@@ -102,12 +102,16 @@ class User
     {
       text: 'Please allow more emoji in your profile.',
       attachments: [
-        fallback: slack_oauth_url,
-        actions: [
-          type: 'button',
-          text: 'Allow Moji',
-          url: slack_oauth_url
-        ]
+        {
+          fallback: slack_oauth_url,
+          actions: [
+            {
+              type: 'button',
+              text: 'Allow Moji',
+              url: slack_oauth_url
+            }
+          ]
+        }
       ]
     }
   end
