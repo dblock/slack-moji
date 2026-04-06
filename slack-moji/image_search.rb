@@ -1,29 +1,32 @@
 module SlackMoji
   class ImageSearch
-    GOOGLE_URL = 'https://www.google.com/search?q=%<query>s&source=lnms&tbm=isch&tbs=isz:i'.freeze
-    APPEND_TERMS = ['', 'emoji', 'cartoon'].freeze
+    DDG_HOME_URL = 'https://duckduckgo.com/'.freeze
+    DDG_IMAGE_URL = 'https://duckduckgo.com/i.js'.freeze
+    HEADERS = { 'User-Agent' => 'Mozilla/5.0' }.freeze
     DEFAULT_COUNT = 5
 
     def self.find(keyword, count = DEFAULT_COUNT)
-      images = []
-
-      APPEND_TERMS.each do |term|
-        search_term = [keyword, term].reject(&:empty?).join(' ')
-        images.concat(search_google(search_term, count))
-        break if images.size >= count
-      end
-
-      images.uniq.first(count)
+      search_duckduckgo(keyword, count).uniq.first(count)
     end
 
-    def self.search_google(query, count)
-      encoded = URI.encode_www_form_component(query)
-      url = format(GOOGLE_URL, query: encoded)
-      response = HTTParty.get(url, headers: { 'User-Agent' => 'Mozilla/5.0' })
-      doc = Nokogiri::HTML(response.body)
-      doc.css('img[src*="gstatic.com"]').map { |img| img['src'] }.first(count)
+    def self.search_duckduckgo(query, count)
+      vqd = fetch_vqd(query)
+      return [] unless vqd
+
+      response = HTTParty.get(DDG_IMAGE_URL,
+                              query: { q: query, o: 'json', vqd: vqd, f: ',,,,,', p: '1' },
+                              headers: HEADERS.merge('Referer' => DDG_HOME_URL))
+      data = JSON.parse(response.body)
+      (data['results'] || []).map { |r| r['image'] }.compact.first(count)
     rescue StandardError
       []
+    end
+
+    def self.fetch_vqd(query)
+      response = HTTParty.get(DDG_HOME_URL, query: { q: query }, headers: HEADERS)
+      response.body[/vqd=['"]([^'"]+)['"]/, 1]
+    rescue StandardError
+      nil
     end
   end
 end

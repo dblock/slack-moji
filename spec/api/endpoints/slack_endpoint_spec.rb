@@ -1,13 +1,9 @@
 require 'spec_helper'
 
-SEARCH_IMAGE_URL_A = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:a'.freeze
-SEARCH_IMAGE_URL_B = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:b'.freeze
-SEARCH_HTML = <<~HTML.freeze
-  <html><body>
-    <img src="#{SEARCH_IMAGE_URL_A}" />
-    <img src="#{SEARCH_IMAGE_URL_B}" />
-  </body></html>
-HTML
+SEARCH_IMAGE_URL_A = 'https://images.emojiterra.com/google/cat.png'.freeze
+SEARCH_IMAGE_URL_B = 'https://images.emojiterra.com/google/cat2.png'.freeze
+SEARCH_DDG_VQD_HTML = '<html><body><script>vqd="4-abc123"</script></body></html>'.freeze
+SEARCH_DDG_JSON = JSON.generate(results: [{ image: SEARCH_IMAGE_URL_A }, { image: SEARCH_IMAGE_URL_B }]).freeze
 
 describe Api::Endpoints::SlackEndpoint do
   include Api::Test::EndpointTest
@@ -116,8 +112,10 @@ describe Api::Endpoints::SlackEndpoint do
 
       context 'search command' do
         before do
-          stub_request(:get, %r{google\.com/search})
-            .to_return(status: 200, body: SEARCH_HTML, headers: { 'Content-Type' => 'text/html' })
+          stub_request(:get, %r{duckduckgo\.com/\?q=})
+            .to_return(status: 200, body: SEARCH_DDG_VQD_HTML, headers: { 'Content-Type' => 'text/html' })
+          stub_request(:get, %r{duckduckgo\.com/i\.js})
+            .to_return(status: 200, body: SEARCH_DDG_JSON, headers: { 'Content-Type' => 'application/json' })
         end
 
         it 'returns image results with select buttons' do
@@ -173,8 +171,10 @@ describe Api::Endpoints::SlackEndpoint do
         let(:team) { Fabricate(:team, subscribed: false) }
 
         before do
-          stub_request(:get, %r{google\.com/search})
-            .to_return(status: 200, body: SEARCH_HTML, headers: { 'Content-Type' => 'text/html' })
+          stub_request(:get, %r{duckduckgo\.com/\?q=})
+            .to_return(status: 200, body: SEARCH_DDG_VQD_HTML, headers: { 'Content-Type' => 'text/html' })
+          stub_request(:get, %r{duckduckgo\.com/i\.js})
+            .to_return(status: 200, body: SEARCH_DDG_JSON, headers: { 'Content-Type' => 'application/json' })
         end
 
         it 'errors on expired subscription' do
@@ -197,7 +197,7 @@ describe Api::Endpoints::SlackEndpoint do
       context 'search-select' do
         it 'confirms selected image URL' do
           post '/api/slack/action', payload: {
-            actions: [{ name: 'image-url', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:a' }],
+            actions: [{ name: 'image-url', value: SEARCH_IMAGE_URL_A }],
             channel: { id: 'C1', name: 'moji' },
             user: { id: user.user_id },
             team: { id: team.team_id },
@@ -207,7 +207,7 @@ describe Api::Endpoints::SlackEndpoint do
           expect(last_response.status).to eq 201
           response = JSON.parse(last_response.body)
           expect(response['text']).to include('Selected:')
-          expect(response['text']).to include('gstatic.com')
+          expect(response['text']).to include(SEARCH_IMAGE_URL_A)
         end
       end
 
