@@ -203,7 +203,10 @@ describe Api::Endpoints::SlackEndpoint do
 
     context 'interactive buttons' do
       context 'search-select' do
-        it 'confirms selected image URL (Block Kit action)' do
+        it 'uploads the emoji and confirms' do
+          allow_any_instance_of(Slack::Web::Client).to receive(:admin_emoji_add)
+            .with(name: 'happy-cat', url: SEARCH_IMAGE_URL_A)
+            .and_return({ 'ok' => true })
           post '/api/slack/action', payload: {
             type: 'block_actions',
             actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
@@ -215,11 +218,47 @@ describe Api::Endpoints::SlackEndpoint do
           }.to_json
           expect(last_response.status).to eq 201
           response = JSON.parse(last_response.body)
-          expect(response['text']).to include('happy-cat')
-          expect(response['text']).to include(SEARCH_IMAGE_URL_A)
+          expect(response['text']).to include(':happy-cat:')
+          expect(response['text']).to include('Added')
+        end
+
+        it 'sanitizes the emoji name' do
+          allow_any_instance_of(Slack::Web::Client).to receive(:admin_emoji_add)
+            .with(name: 'happy_cat', url: SEARCH_IMAGE_URL_A)
+            .and_return({ 'ok' => true })
+          post '/api/slack/action', payload: {
+            type: 'block_actions',
+            actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+            state: { values: { emoji_name_block: { emoji_name: { value: 'Happy Cat!' } } } },
+            channel: { id: 'C1', name: 'moji' },
+            user: { id: user.user_id },
+            team: { id: team.team_id },
+            token: token
+          }.to_json
+          expect(last_response.status).to eq 201
+        end
+
+        it 'returns error on Slack API failure' do
+          allow_any_instance_of(Slack::Web::Client).to receive(:admin_emoji_add)
+            .and_raise(Slack::Web::Api::Errors::SlackError.new('emoji_already_exists'))
+          post '/api/slack/action', payload: {
+            type: 'block_actions',
+            actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+            state: { values: { emoji_name_block: { emoji_name: { value: 'happy-cat' } } } },
+            channel: { id: 'C1', name: 'moji' },
+            user: { id: user.user_id },
+            team: { id: team.team_id },
+            token: token
+          }.to_json
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['message']).to include('emoji_already_exists')
         end
 
         it 'falls back to "emoji" when no name is provided' do
+          allow_any_instance_of(Slack::Web::Client).to receive(:admin_emoji_add)
+            .with(name: 'emoji', url: SEARCH_IMAGE_URL_A)
+            .and_return({ 'ok' => true })
           post '/api/slack/action', payload: {
             type: 'block_actions',
             actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],

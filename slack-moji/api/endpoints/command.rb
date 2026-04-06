@@ -82,7 +82,13 @@ module Api
           return { message: 'No image URL provided.' } if url.blank?
 
           name = emoji_name.presence || 'emoji'
-          { text: "Selected :#{name}: #{url}" }
+          sanitized_name = name.gsub(/[^a-z0-9_-]/i, '_').downcase.gsub(/_+/, '_').gsub(/^_|_$/, '')
+          return { message: 'Emoji name is invalid.' } if sanitized_name.blank?
+
+          team.slack_client.admin_emoji_add(name: sanitized_name, url: url)
+          { text: "Added :#{sanitized_name}: to your workspace!" }
+        rescue Slack::Web::Api::Errors::SlackError => e
+          { message: "Failed to add emoji: #{e.message}." }
         end
 
         def emoji_count!
