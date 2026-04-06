@@ -22,10 +22,12 @@ module Api
 
           response = if command.team.subscription_expired?
                        { message: command.team.subscribe_text }
-                     elsif command.user.access_token
+                     elsif command.user.access_token || command.action == 'search'
                        case command.action
                        when 'me'
                          command.user.to_slack_emoji_question
+                       when 'search'
+                         command.search!
                        else
                          { message: "Sorry, I don't understand the `#{command.action}` command." }
                        end
@@ -79,6 +81,8 @@ module Api
               command.emoji_count!
             when 'emoji-text'
               command.emoji_text!
+            when 'search-select'
+              command.search_select!
             else
               { message: "Sorry, I don't understand the `#{command.callback_id}` command." }
             end

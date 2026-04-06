@@ -126,6 +126,7 @@ RSpec/SpecFilePathFormat:
     - 'spec/slack-moji/commands/help_spec.rb'
     - 'spec/slack-moji/commands/info_spec.rb'
     - 'spec/slack-moji/commands/subscription_spec.rb'
+    - 'spec/slack-moji/image_search_spec.rb'
     - 'spec/slack-moji/server_spec.rb'
     - 'spec/slack-moji/service_spec.rb'
     - 'spec/slack-moji/version_spec.rb'

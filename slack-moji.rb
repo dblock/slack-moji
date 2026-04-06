@@ -12,6 +12,7 @@ Mongoid.load! File.expand_path('config/mongoid.yml', __dir__), ENV.fetch('RACK_E
 require 'slack-ruby-bot'
 require 'slack-moji/version'
 require 'slack-moji/service'
+require 'slack-moji/image_search'
 require 'slack-moji/info'
 require 'slack-moji/models'
 require 'slack-moji/api'

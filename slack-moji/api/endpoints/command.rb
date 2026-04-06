@@ -61,6 +61,23 @@ module Api
           throw :error, status: 401, message: 'Message token is not coming from Slack.'
         end
 
+        def search!
+          keyword = arg
+          return { message: 'Please provide a keyword, e.g. `/moji search cat`.' } if keyword.blank?
+
+          urls = SlackMoji::ImageSearch.find(keyword)
+          return { message: "No images found for \"#{keyword}\"." } if urls.empty?
+
+          to_slack_search_results(keyword, urls)
+        end
+
+        def search_select!
+          url = arg
+          return { message: 'No image URL provided.' } if url.blank?
+
+          { text: "Selected: #{url}" }
+        end
+
         def emoji_count!
           emoji_count = arg.to_i
           user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count.positive?)
@@ -86,6 +103,31 @@ module Api
           else
             { message: 'Unsupported message type.' }
           end
+        end
+
+        private
+
+        def to_slack_search_results(keyword, urls)
+          attachments = urls.map.with_index(1) do |url, i|
+            {
+              fallback: "Option #{i}: #{url}",
+              title: "Option #{i}",
+              image_url: url,
+              callback_id: 'search-select',
+              actions: [
+                {
+                  type: 'button',
+                  name: 'image-url',
+                  text: 'Select',
+                  value: url
+                }
+              ]
+            }
+          end
+          {
+            text: "Search results for \"#{keyword}\":",
+            attachments: attachments
+          }
         end
       end
     end

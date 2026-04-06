@@ -1,5 +1,14 @@
 require 'spec_helper'
 
+SEARCH_IMAGE_URL_A = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:a'.freeze
+SEARCH_IMAGE_URL_B = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:b'.freeze
+SEARCH_HTML = <<~HTML.freeze
+  <html><body>
+    <img src="#{SEARCH_IMAGE_URL_A}" />
+    <img src="#{SEARCH_IMAGE_URL_B}" />
+  </body></html>
+HTML
+
 describe Api::Endpoints::SlackEndpoint do
   include Api::Test::EndpointTest
 
@@ -104,9 +113,104 @@ describe Api::Endpoints::SlackEndpoint do
           }.to_json)
         end
       end
+
+      context 'search command' do
+        before do
+          stub_request(:get, %r{google\.com/search})
+            .to_return(status: 200, body: SEARCH_HTML, headers: { 'Content-Type' => 'text/html' })
+        end
+
+        it 'returns image results with select buttons' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'search cat',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['text']).to eq('Search results for "cat":')
+          expect(response['attachments']).not_to be_empty
+          first = response['attachments'].first
+          expect(first['image_url']).to eq(SEARCH_IMAGE_URL_A)
+          expect(first['actions'].first['text']).to eq('Select')
+          expect(first['actions'].first['value']).to eq(SEARCH_IMAGE_URL_A)
+          expect(first['callback_id']).to eq('search-select')
+        end
+
+        it 'returns an error when no keyword is given' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'search',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['message']).to include('Please provide a keyword')
+        end
+
+        it 'works without moji authorization' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'search cat',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['text']).to eq('Search results for "cat":')
+        end
+      end
+
+      context 'search command with expired subscription' do
+        let(:team) { Fabricate(:team, subscribed: false) }
+
+        before do
+          stub_request(:get, %r{google\.com/search})
+            .to_return(status: 200, body: SEARCH_HTML, headers: { 'Content-Type' => 'text/html' })
+        end
+
+        it 'errors on expired subscription' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'search cat',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['message']).to eq(team.subscribe_text)
+        end
+      end
     end
 
     context 'interactive buttons' do
+      context 'search-select' do
+        it 'confirms selected image URL' do
+          post '/api/slack/action', payload: {
+            actions: [{ name: 'image-url', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:a' }],
+            channel: { id: 'C1', name: 'moji' },
+            user: { id: user.user_id },
+            team: { id: team.team_id },
+            token: token,
+            callback_id: 'search-select'
+          }.to_json
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['text']).to include('Selected:')
+          expect(response['text']).to include('gstatic.com')
+        end
+      end
+
       context 'emoji-count' do
         it 'sets no emoji' do
           expect_any_instance_of(User).to receive(:emoji!)

@@ -35,7 +35,7 @@ Update [CHANGELOG.md](CHANGELOG.md) for any user-facing change. Add a line at th
 ## Code Style
 
 - Ruby style is enforced via RuboCop (`.rubocop.yml`). Persistent exceptions live in `.rubocop_todo.yml`.
-- Do not add new entries to `.rubocop_todo.yml` for code you write — fix the offenses instead.
+- Run `rubocop -a` and `rubocop --auto-gen-config` unless fixing the offenses is trivials.
 
 ## Commits and PRs
 
