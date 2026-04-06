@@ -80,12 +80,13 @@ module Api
         def search_select!
           url = arg
           return { message: 'No image URL provided.' } if url.blank?
+          return user.to_slack_auth_request unless user.access_token
 
           name = emoji_name.presence || 'emoji'
           sanitized_name = name.gsub(/[^a-z0-9_-]/i, '_').downcase.gsub(/_+/, '_').gsub(/^_|_$/, '')
           return { message: 'Emoji name is invalid.' } if sanitized_name.blank?
 
-          team.slack_client.admin_emoji_add(name: sanitized_name, url: url)
+          p user.slack_client.admin_emoji_add(name: sanitized_name, url: url)
           { text: "Added :#{sanitized_name}: to your workspace!" }
         rescue Slack::Web::Api::Errors::SlackError => e
           { message: "Failed to add emoji: #{e.message}." }
