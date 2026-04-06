@@ -139,7 +139,7 @@ describe Api::Endpoints::SlackEndpoint do
           actions_block = blocks.find { |b| b['type'] == 'actions' }
           first_button = actions_block['elements'].first
           expect(first_button['text']['text']).to eq('1')
-          expect(first_button['action_id']).to eq('search-select')
+          expect(first_button['action_id']).to eq('search-select-1')
           expect(first_button['value']).to eq(SEARCH_IMAGE_URL_A)
         end
 
@@ -203,7 +203,7 @@ describe Api::Endpoints::SlackEndpoint do
         it 'confirms selected image URL (Block Kit action)' do
           post '/api/slack/action', payload: {
             type: 'block_actions',
-            actions: [{ action_id: 'search-select', value: SEARCH_IMAGE_URL_A }],
+            actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
             channel: { id: 'C1', name: 'moji' },
             user: { id: user.user_id },
             team: { id: team.team_id },

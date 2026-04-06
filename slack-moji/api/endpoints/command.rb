@@ -17,7 +17,7 @@ module Api
             if params[:payload].key?(:actions)
               first_action = payload[:actions][0]
               # Support both Block Kit (action_id) and legacy attachments (callback_id)
-              @action = payload[:callback_id] || first_action[:action_id]
+              @action = payload[:callback_id] || first_action[:action_id]&.sub(/-\d+$/, '')
               @arg = first_action[:value]
               @text = [action, arg].join(' ')
             elsif params[:payload].key?(:message)
@@ -120,7 +120,7 @@ module Api
             {
               type: 'button',
               text: { type: 'plain_text', text: i.to_s },
-              action_id: 'search-select',
+              action_id: "search-select-#{i}",
               value: url
             }
           end
