@@ -85,7 +85,9 @@ module Api
             when 'emoji-text'
               command.emoji_text!
             when 'search-select'
-              command.search_select!
+              rc = command.search_select!
+              puts "SLACK SEARCH SELECT RESPONSE: #{rc.to_json}"
+              rc
             else
               { message: "Sorry, I don't understand the `#{command.action}` command." }
             end

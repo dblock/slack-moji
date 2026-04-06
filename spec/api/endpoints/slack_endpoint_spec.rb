@@ -203,9 +203,9 @@ describe Api::Endpoints::SlackEndpoint do
 
     context 'interactive buttons' do
       context 'search-select' do
-        context 'with a user authorized with moji' do
+        context 'with an installer user token' do
           before do
-            user.update_attributes!(access_token: 'slack-user-token')
+            team.update_attributes!(activated_user_access_token: 'slack-installer-token')
           end
 
           it 'uploads the emoji and confirms' do
@@ -278,8 +278,8 @@ describe Api::Endpoints::SlackEndpoint do
           end
         end
 
-        context 'without moji authorization' do
-          it 'prompts user to authorize' do
+        context 'without an installer user token' do
+          it 'returns an error' do
             post '/api/slack/action', payload: {
               type: 'block_actions',
               actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
@@ -291,7 +291,7 @@ describe Api::Endpoints::SlackEndpoint do
             }.to_json
             expect(last_response.status).to eq 201
             response = JSON.parse(last_response.body)
-            expect(response['text']).to eq('Please allow more emoji in your profile.')
+            expect(response['message']).to include('reinstall')
           end
         end
       end
