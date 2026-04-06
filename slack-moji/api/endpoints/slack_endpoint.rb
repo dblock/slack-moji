@@ -35,7 +35,9 @@ module Api
                        command.user.to_slack_auth_request
                      end
 
-          response.merge(user: command.user_id, channel: command.channel_id)
+          result = response.merge(user: command.user_id, channel: command.channel_id)
+          puts "SLACK COMMAND RESPONSE: #{result.to_json}"
+          result
         end
 
         desc 'Respond to interactive slack buttons and actions.'
