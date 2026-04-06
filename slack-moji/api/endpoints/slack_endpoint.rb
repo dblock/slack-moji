@@ -42,7 +42,7 @@ module Api
         params do
           requires :payload, type: JSON do
             requires :token, type: String
-            requires :callback_id, type: String
+            optional :callback_id, type: String
             optional :type, type: String
             optional :trigger_id, type: String
             optional :response_url, type: String
@@ -84,7 +84,7 @@ module Api
             when 'search-select'
               command.search_select!
             else
-              { message: "Sorry, I don't understand the `#{command.callback_id}` command." }
+              { message: "Sorry, I don't understand the `#{command.action}` command." }
             end
           end
         end

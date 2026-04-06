@@ -8,7 +8,6 @@ module Api
         def initialize(params)
           if params.key?(:payload)
             payload = params[:payload]
-            @action = payload[:callback_id]
             @channel_id = payload[:channel][:id]
             @channel_name = payload[:channel][:name]
             @user_id = payload[:user][:id]
@@ -16,9 +15,13 @@ module Api
             @type = payload[:type]
             @message_ts = payload[:message_ts]
             if params[:payload].key?(:actions)
-              @arg = payload[:actions][0][:value]
+              first_action = payload[:actions][0]
+              # Support both Block Kit (action_id) and legacy attachments (callback_id)
+              @action = payload[:callback_id] || first_action[:action_id]
+              @arg = first_action[:value]
               @text = [action, arg].join(' ')
             elsif params[:payload].key?(:message)
+              @action = payload[:callback_id]
               payload_message = payload[:message]
               @text = payload_message[:text]
               @message_ts ||= payload_message[:ts]
@@ -27,6 +30,8 @@ module Api
                   @text = [@text, attachment[:image_url]].compact.join("\n")
                 end
               end
+            else
+              @action = payload[:callback_id]
             end
             @token = payload[:token]
             @response_url = payload[:response_url]
@@ -108,25 +113,24 @@ module Api
         private
 
         def to_slack_search_results(keyword, urls)
-          attachments = urls.map.with_index(1) do |url, i|
+          image_elements = urls.map.with_index(1) do |url, i|
+            { type: 'image', image_url: url, alt_text: "Option #{i}" }
+          end
+          buttons = urls.map.with_index(1) do |url, i|
             {
-              fallback: "Option #{i}: #{url}",
-              title: "Option #{i}",
-              image_url: url,
-              callback_id: 'search-select',
-              actions: [
-                {
-                  type: 'button',
-                  name: 'image-url',
-                  text: 'Select',
-                  value: url
-                }
-              ]
+              type: 'button',
+              text: { type: 'plain_text', text: i.to_s },
+              action_id: 'search-select',
+              value: url
             }
           end
           {
             text: "Search results for \"#{keyword}\":",
-            attachments: attachments
+            blocks: [
+              { type: 'section', text: { type: 'mrkdwn', text: "Search results for *#{keyword}*:" } },
+              { type: 'context', elements: image_elements },
+              { type: 'actions', elements: buttons }
+            ]
           }
         end
       end

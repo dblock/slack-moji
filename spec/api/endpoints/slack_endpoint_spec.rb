@@ -118,7 +118,7 @@ describe Api::Endpoints::SlackEndpoint do
             .to_return(status: 200, body: SEARCH_DDG_JSON, headers: { 'Content-Type' => 'application/json' })
         end
 
-        it 'returns image results with select buttons' do
+        it 'returns image results as Block Kit context elements with numbered buttons' do
           post '/api/slack/command',
                command: '/moji',
                text: 'search cat',
@@ -129,13 +129,18 @@ describe Api::Endpoints::SlackEndpoint do
                token: token
           expect(last_response.status).to eq 201
           response = JSON.parse(last_response.body)
-          expect(response['text']).to eq('Search results for "cat":')
-          expect(response['attachments']).not_to be_empty
-          first = response['attachments'].first
-          expect(first['image_url']).to eq(SEARCH_IMAGE_URL_A)
-          expect(first['actions'].first['text']).to eq('Select')
-          expect(first['actions'].first['value']).to eq(SEARCH_IMAGE_URL_A)
-          expect(first['callback_id']).to eq('search-select')
+          blocks = response['blocks']
+          expect(blocks).not_to be_nil
+          expect(response['text']).to include('cat')
+          section = blocks.find { |b| b['type'] == 'section' }
+          expect(section['text']['text']).to include('cat')
+          context_block = blocks.find { |b| b['type'] == 'context' }
+          expect(context_block['elements'].first['image_url']).to eq(SEARCH_IMAGE_URL_A)
+          actions_block = blocks.find { |b| b['type'] == 'actions' }
+          first_button = actions_block['elements'].first
+          expect(first_button['text']['text']).to eq('1')
+          expect(first_button['action_id']).to eq('search-select')
+          expect(first_button['value']).to eq(SEARCH_IMAGE_URL_A)
         end
 
         it 'returns an error when no keyword is given' do
@@ -163,7 +168,7 @@ describe Api::Endpoints::SlackEndpoint do
                token: token
           expect(last_response.status).to eq 201
           response = JSON.parse(last_response.body)
-          expect(response['text']).to eq('Search results for "cat":')
+          expect(response['blocks']).not_to be_nil
         end
       end
 
@@ -195,14 +200,14 @@ describe Api::Endpoints::SlackEndpoint do
 
     context 'interactive buttons' do
       context 'search-select' do
-        it 'confirms selected image URL' do
+        it 'confirms selected image URL (Block Kit action)' do
           post '/api/slack/action', payload: {
-            actions: [{ name: 'image-url', value: SEARCH_IMAGE_URL_A }],
+            type: 'block_actions',
+            actions: [{ action_id: 'search-select', value: SEARCH_IMAGE_URL_A }],
             channel: { id: 'C1', name: 'moji' },
             user: { id: user.user_id },
             team: { id: team.team_id },
-            token: token,
-            callback_id: 'search-select'
+            token: token
           }.to_json
           expect(last_response.status).to eq 201
           response = JSON.parse(last_response.body)

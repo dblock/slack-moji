@@ -14,7 +14,7 @@ module SlackMoji
       return [] unless vqd
 
       response = HTTParty.get(DDG_IMAGE_URL,
-                              query: { q: query, o: 'json', vqd: vqd, f: ',,,,,', p: '1' },
+                              query: { q: query, o: 'json', vqd: vqd, f: 'type:transparent', p: '1' },
                               headers: HEADERS.merge('Referer' => DDG_HOME_URL))
       data = JSON.parse(response.body)
       (data['results'] || []).map { |r| r['image'] }.compact.first(count)
