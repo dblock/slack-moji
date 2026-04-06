@@ -3,7 +3,7 @@ module Api
     class SlackEndpointCommands
       class Command
         attr_reader :action, :arg, :channel_id, :channel_name, :user_id, :team_id, :text, :image_url, :token,
-                    :response_url, :trigger_id, :type, :submission, :message_ts
+                    :response_url, :trigger_id, :type, :submission, :message_ts, :emoji_name
 
         def initialize(params)
           if params.key?(:payload)
@@ -19,6 +19,7 @@ module Api
               # Support both Block Kit (action_id) and legacy attachments (callback_id)
               @action = payload[:callback_id] || first_action[:action_id]&.sub(/-\d+$/, '')
               @arg = first_action[:value]
+              @emoji_name = payload.dig(:state, :values, :emoji_name_block, :emoji_name, :value)
               @text = [action, arg].join(' ')
             elsif params[:payload].key?(:message)
               @action = payload[:callback_id]
@@ -80,7 +81,8 @@ module Api
           url = arg
           return { message: 'No image URL provided.' } if url.blank?
 
-          { text: "Selected: #{url}" }
+          name = emoji_name.presence || 'emoji'
+          { text: "Selected :#{name}: #{url}" }
         end
 
         def emoji_count!
@@ -124,11 +126,23 @@ module Api
               value: url
             }
           end
+          sanitized_keyword = keyword.gsub(/[^a-z0-9_-]/i, '_').downcase
           {
             text: "Search results for \"#{keyword}\":",
             blocks: [
               { type: 'section', text: { type: 'mrkdwn', text: "Search results for *#{keyword}*:" } },
               { type: 'context', elements: image_elements },
+              {
+                type: 'input',
+                block_id: 'emoji_name_block',
+                label: { type: 'plain_text', text: 'Emoji name' },
+                element: {
+                  type: 'plain_text_input',
+                  action_id: 'emoji_name',
+                  initial_value: sanitized_keyword,
+                  placeholder: { type: 'plain_text', text: 'e.g. dancing-cat' }
+                }
+              },
               { type: 'actions', elements: buttons }
             ]
           }

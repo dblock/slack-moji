@@ -136,6 +136,9 @@ describe Api::Endpoints::SlackEndpoint do
           expect(section['text']['text']).to include('cat')
           context_block = blocks.find { |b| b['type'] == 'context' }
           expect(context_block['elements'].first['image_url']).to eq(SEARCH_IMAGE_URL_A)
+          input_block = blocks.find { |b| b['type'] == 'input' }
+          expect(input_block['block_id']).to eq('emoji_name_block')
+          expect(input_block['element']['initial_value']).to eq('cat')
           actions_block = blocks.find { |b| b['type'] == 'actions' }
           first_button = actions_block['elements'].first
           expect(first_button['text']['text']).to eq('1')
@@ -204,6 +207,7 @@ describe Api::Endpoints::SlackEndpoint do
           post '/api/slack/action', payload: {
             type: 'block_actions',
             actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+            state: { values: { emoji_name_block: { emoji_name: { value: 'happy-cat' } } } },
             channel: { id: 'C1', name: 'moji' },
             user: { id: user.user_id },
             team: { id: team.team_id },
@@ -211,8 +215,22 @@ describe Api::Endpoints::SlackEndpoint do
           }.to_json
           expect(last_response.status).to eq 201
           response = JSON.parse(last_response.body)
-          expect(response['text']).to include('Selected:')
+          expect(response['text']).to include('happy-cat')
           expect(response['text']).to include(SEARCH_IMAGE_URL_A)
+        end
+
+        it 'falls back to "emoji" when no name is provided' do
+          post '/api/slack/action', payload: {
+            type: 'block_actions',
+            actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+            channel: { id: 'C1', name: 'moji' },
+            user: { id: user.user_id },
+            team: { id: team.team_id },
+            token: token
+          }.to_json
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['text']).to include(':emoji:')
         end
       end
 

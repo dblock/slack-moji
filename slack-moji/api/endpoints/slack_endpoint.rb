@@ -63,6 +63,7 @@ module Api
             optional :actions, type: Array do
               requires :value, type: String
             end
+            optional :state, type: Hash
             optional :message, type: Hash do
               requires :type, type: String
               requires :user, type: String
