@@ -111,7 +111,7 @@ RSpec/NamedSubject:
 # Offense count: 6
 # Configuration parameters: AllowedGroups.
 RSpec/NestedGroups:
-  Max: 4
+  Max: 5
 
 # Offense count: 11
 # Configuration parameters: CustomTransform, IgnoreMethods, IgnoreMetadata.
@@ -126,6 +126,7 @@ RSpec/SpecFilePathFormat:
     - 'spec/slack-moji/commands/help_spec.rb'
     - 'spec/slack-moji/commands/info_spec.rb'
     - 'spec/slack-moji/commands/subscription_spec.rb'
+    - 'spec/slack-moji/image_search_spec.rb'
     - 'spec/slack-moji/server_spec.rb'
     - 'spec/slack-moji/service_spec.rb'
     - 'spec/slack-moji/version_spec.rb'

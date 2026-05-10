@@ -3,12 +3,11 @@ module Api
     class SlackEndpointCommands
       class Command
         attr_reader :action, :arg, :channel_id, :channel_name, :user_id, :team_id, :text, :image_url, :token,
-                    :response_url, :trigger_id, :type, :submission, :message_ts
+                    :response_url, :trigger_id, :type, :submission, :message_ts, :emoji_name
 
         def initialize(params)
           if params.key?(:payload)
             payload = params[:payload]
-            @action = payload[:callback_id]
             @channel_id = payload[:channel][:id]
             @channel_name = payload[:channel][:name]
             @user_id = payload[:user][:id]
@@ -16,9 +15,14 @@ module Api
             @type = payload[:type]
             @message_ts = payload[:message_ts]
             if params[:payload].key?(:actions)
-              @arg = payload[:actions][0][:value]
+              first_action = payload[:actions][0]
+              # Support both Block Kit (action_id) and legacy attachments (callback_id)
+              @action = payload[:callback_id] || first_action[:action_id]&.sub(/-\d+$/, '')
+              @arg = first_action[:value]
+              @emoji_name = payload.dig(:state, :values, :emoji_name_block, :emoji_name, :value)
               @text = [action, arg].join(' ')
             elsif params[:payload].key?(:message)
+              @action = payload[:callback_id]
               payload_message = payload[:message]
               @text = payload_message[:text]
               @message_ts ||= payload_message[:ts]
@@ -27,6 +31,8 @@ module Api
                   @text = [@text, attachment[:image_url]].compact.join("\n")
                 end
               end
+            else
+              @action = payload[:callback_id]
             end
             @token = payload[:token]
             @response_url = payload[:response_url]
@@ -61,6 +67,33 @@ module Api
           throw :error, status: 401, message: 'Message token is not coming from Slack.'
         end
 
+        def search!
+          keyword = arg
+          return { message: 'Please provide a keyword, e.g. `/moji search cat`.' } if keyword.blank?
+
+          urls = SlackMoji::ImageSearch.find(keyword)
+          return { message: "No images found for \"#{keyword}\"." } if urls.empty?
+
+          to_slack_search_results(keyword, urls)
+        end
+
+        def search_select!
+          url = arg
+          return { message: 'No image URL provided.' } if url.blank?
+
+          installer_token = team.activated_user_access_token
+          return { message: 'No installer user token available. Please reinstall the app.' } if installer_token.blank?
+
+          name = emoji_name.presence || 'emoji'
+          sanitized_name = name.gsub(/[^a-z0-9_-]/i, '_').downcase.gsub(/_+/, '_').gsub(/^_|_$/, '')
+          return { message: 'Emoji name is invalid.' } if sanitized_name.blank?
+
+          Slack::Web::Client.new(token: installer_token).admin_emoji_add(name: sanitized_name, url: url)
+          { text: "Added :#{sanitized_name}: to your workspace!" }
+        rescue Slack::Web::Api::Errors::SlackError => e
+          { message: "Failed to add emoji: #{e.message}." }
+        end
+
         def emoji_count!
           emoji_count = arg.to_i
           user.update_attributes!(emoji_count: emoji_count, emoji: emoji_count.positive?)
@@ -86,6 +119,42 @@ module Api
           else
             { message: 'Unsupported message type.' }
           end
+        end
+
+        private
+
+        def to_slack_search_results(keyword, urls)
+          image_elements = urls.map.with_index(1) do |url, i|
+            { type: 'image', image_url: url, alt_text: "Option #{i}" }
+          end
+          buttons = urls.map.with_index(1) do |url, i|
+            {
+              type: 'button',
+              text: { type: 'plain_text', text: i.to_s },
+              action_id: "search-select-#{i}",
+              value: url
+            }
+          end
+          sanitized_keyword = keyword.gsub(/[^a-z0-9_-]/i, '_').downcase
+          {
+            text: "Search results for \"#{keyword}\":",
+            blocks: [
+              { type: 'section', text: { type: 'mrkdwn', text: "Search results for *#{keyword}*:" } },
+              { type: 'context', elements: image_elements },
+              {
+                type: 'input',
+                block_id: 'emoji_name_block',
+                label: { type: 'plain_text', text: 'Emoji name' },
+                element: {
+                  type: 'plain_text_input',
+                  action_id: 'emoji_name',
+                  initial_value: sanitized_keyword,
+                  placeholder: { type: 'plain_text', text: 'e.g. dancing-cat' }
+                }
+              },
+              { type: 'actions', elements: buttons }
+            ]
+          }
         end
       end
     end

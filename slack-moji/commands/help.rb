@@ -10,6 +10,10 @@ module SlackMoji
         help                     - get this helpful message
         subscription             - show subscription info
         info                     - bot info
+
+        Slash Commands (/moji)
+        ------------
+        search <keyword>         - search for emoji images and select one
         ```
       EOS
       def self.call(client, data, _match)

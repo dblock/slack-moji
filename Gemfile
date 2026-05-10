@@ -35,6 +35,8 @@ end
 
 group :development do
   gem 'mongoid-shell'
+  gem 'puma'
+  gem 'irb'
 end
 
 group :test do

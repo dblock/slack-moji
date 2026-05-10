@@ -1,5 +1,10 @@
 require 'spec_helper'
 
+SEARCH_IMAGE_URL_A = 'https://images.emojiterra.com/google/cat.png'.freeze
+SEARCH_IMAGE_URL_B = 'https://images.emojiterra.com/google/cat2.png'.freeze
+SEARCH_DDG_VQD_HTML = '<html><body><script>vqd="4-abc123"</script></body></html>'.freeze
+SEARCH_DDG_JSON = JSON.generate(results: [{ image: SEARCH_IMAGE_URL_A }, { image: SEARCH_IMAGE_URL_B }]).freeze
+
 describe Api::Endpoints::SlackEndpoint do
   include Api::Test::EndpointTest
 
@@ -104,9 +109,193 @@ describe Api::Endpoints::SlackEndpoint do
           }.to_json)
         end
       end
+
+      context 'search command' do
+        before do
+          stub_request(:get, %r{duckduckgo\.com/\?q=})
+            .to_return(status: 200, body: SEARCH_DDG_VQD_HTML, headers: { 'Content-Type' => 'text/html' })
+          stub_request(:get, %r{duckduckgo\.com/i\.js})
+            .to_return(status: 200, body: SEARCH_DDG_JSON, headers: { 'Content-Type' => 'application/json' })
+        end
+
+        it 'returns image results as Block Kit context elements with numbered buttons' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'search cat',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          blocks = response['blocks']
+          expect(blocks).not_to be_nil
+          expect(response['text']).to include('cat')
+          section = blocks.find { |b| b['type'] == 'section' }
+          expect(section['text']['text']).to include('cat')
+          context_block = blocks.find { |b| b['type'] == 'context' }
+          expect(context_block['elements'].first['image_url']).to eq(SEARCH_IMAGE_URL_A)
+          input_block = blocks.find { |b| b['type'] == 'input' }
+          expect(input_block['block_id']).to eq('emoji_name_block')
+          expect(input_block['element']['initial_value']).to eq('cat')
+          actions_block = blocks.find { |b| b['type'] == 'actions' }
+          first_button = actions_block['elements'].first
+          expect(first_button['text']['text']).to eq('1')
+          expect(first_button['action_id']).to eq('search-select-1')
+          expect(first_button['value']).to eq(SEARCH_IMAGE_URL_A)
+        end
+
+        it 'returns an error when no keyword is given' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'search',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['message']).to include('Please provide a keyword')
+        end
+
+        it 'works without moji authorization' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'search cat',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['blocks']).not_to be_nil
+        end
+      end
+
+      context 'search command with expired subscription' do
+        let(:team) { Fabricate(:team, subscribed: false) }
+
+        before do
+          stub_request(:get, %r{duckduckgo\.com/\?q=})
+            .to_return(status: 200, body: SEARCH_DDG_VQD_HTML, headers: { 'Content-Type' => 'text/html' })
+          stub_request(:get, %r{duckduckgo\.com/i\.js})
+            .to_return(status: 200, body: SEARCH_DDG_JSON, headers: { 'Content-Type' => 'application/json' })
+        end
+
+        it 'errors on expired subscription' do
+          post '/api/slack/command',
+               command: '/moji',
+               text: 'search cat',
+               channel_id: 'C1',
+               channel_name: 'channel',
+               user_id: user.user_id,
+               team_id: user.team.team_id,
+               token: token
+          expect(last_response.status).to eq 201
+          response = JSON.parse(last_response.body)
+          expect(response['message']).to eq(team.subscribe_text)
+        end
+      end
     end
 
     context 'interactive buttons' do
+      context 'search-select' do
+        context 'with an installer user token' do
+          before do
+            team.update_attributes!(activated_user_access_token: 'slack-installer-token')
+          end
+
+          it 'uploads the emoji and confirms' do
+            allow_any_instance_of(Slack::Web::Client).to receive(:admin_emoji_add)
+              .with(name: 'happy-cat', url: SEARCH_IMAGE_URL_A)
+              .and_return({ 'ok' => true })
+            post '/api/slack/action', payload: {
+              type: 'block_actions',
+              actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+              state: { values: { emoji_name_block: { emoji_name: { value: 'happy-cat' } } } },
+              channel: { id: 'C1', name: 'moji' },
+              user: { id: user.user_id },
+              team: { id: team.team_id },
+              token: token
+            }.to_json
+            expect(last_response.status).to eq 201
+            response = JSON.parse(last_response.body)
+            expect(response['text']).to include(':happy-cat:')
+            expect(response['text']).to include('Added')
+          end
+
+          it 'sanitizes the emoji name' do
+            allow_any_instance_of(Slack::Web::Client).to receive(:admin_emoji_add)
+              .with(name: 'happy_cat', url: SEARCH_IMAGE_URL_A)
+              .and_return({ 'ok' => true })
+            post '/api/slack/action', payload: {
+              type: 'block_actions',
+              actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+              state: { values: { emoji_name_block: { emoji_name: { value: 'Happy Cat!' } } } },
+              channel: { id: 'C1', name: 'moji' },
+              user: { id: user.user_id },
+              team: { id: team.team_id },
+              token: token
+            }.to_json
+            expect(last_response.status).to eq 201
+          end
+
+          it 'returns error on Slack API failure' do
+            allow_any_instance_of(Slack::Web::Client).to receive(:admin_emoji_add)
+              .and_raise(Slack::Web::Api::Errors::SlackError.new('emoji_already_exists'))
+            post '/api/slack/action', payload: {
+              type: 'block_actions',
+              actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+              state: { values: { emoji_name_block: { emoji_name: { value: 'happy-cat' } } } },
+              channel: { id: 'C1', name: 'moji' },
+              user: { id: user.user_id },
+              team: { id: team.team_id },
+              token: token
+            }.to_json
+            expect(last_response.status).to eq 201
+            response = JSON.parse(last_response.body)
+            expect(response['message']).to include('emoji_already_exists')
+          end
+
+          it 'falls back to "emoji" when no name is provided' do
+            allow_any_instance_of(Slack::Web::Client).to receive(:admin_emoji_add)
+              .with(name: 'emoji', url: SEARCH_IMAGE_URL_A)
+              .and_return({ 'ok' => true })
+            post '/api/slack/action', payload: {
+              type: 'block_actions',
+              actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+              channel: { id: 'C1', name: 'moji' },
+              user: { id: user.user_id },
+              team: { id: team.team_id },
+              token: token
+            }.to_json
+            expect(last_response.status).to eq 201
+            response = JSON.parse(last_response.body)
+            expect(response['text']).to include(':emoji:')
+          end
+        end
+
+        context 'without an installer user token' do
+          it 'returns an error' do
+            post '/api/slack/action', payload: {
+              type: 'block_actions',
+              actions: [{ action_id: 'search-select-1', value: SEARCH_IMAGE_URL_A }],
+              state: { values: { emoji_name_block: { emoji_name: { value: 'happy-cat' } } } },
+              channel: { id: 'C1', name: 'moji' },
+              user: { id: user.user_id },
+              team: { id: team.team_id },
+              token: token
+            }.to_json
+            expect(last_response.status).to eq 201
+            response = JSON.parse(last_response.body)
+            expect(response['message']).to include('reinstall')
+          end
+        end
+      end
+
       context 'emoji-count' do
         it 'sets no emoji' do
           expect_any_instance_of(User).to receive(:emoji!)

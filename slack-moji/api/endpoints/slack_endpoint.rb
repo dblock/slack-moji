@@ -22,10 +22,12 @@ module Api
 
           response = if command.team.subscription_expired?
                        { message: command.team.subscribe_text }
-                     elsif command.user.access_token
+                     elsif command.user.access_token || command.action == 'search'
                        case command.action
                        when 'me'
                          command.user.to_slack_emoji_question
+                       when 'search'
+                         command.search!
                        else
                          { message: "Sorry, I don't understand the `#{command.action}` command." }
                        end
@@ -33,14 +35,16 @@ module Api
                        command.user.to_slack_auth_request
                      end
 
-          response.merge(user: command.user_id, channel: command.channel_id)
+          result = response.merge(user: command.user_id, channel: command.channel_id)
+          puts "SLACK COMMAND RESPONSE: #{result.to_json}"
+          result
         end
 
         desc 'Respond to interactive slack buttons and actions.'
         params do
           requires :payload, type: JSON do
             requires :token, type: String
-            requires :callback_id, type: String
+            optional :callback_id, type: String
             optional :type, type: String
             optional :trigger_id, type: String
             optional :response_url, type: String
@@ -59,6 +63,7 @@ module Api
             optional :actions, type: Array do
               requires :value, type: String
             end
+            optional :state, type: Hash
             optional :message, type: Hash do
               requires :type, type: String
               requires :user, type: String
@@ -79,8 +84,12 @@ module Api
               command.emoji_count!
             when 'emoji-text'
               command.emoji_text!
+            when 'search-select'
+              rc = command.search_select!
+              puts "SLACK SEARCH SELECT RESPONSE: #{rc.to_json}"
+              rc
             else
-              { message: "Sorry, I don't understand the `#{command.callback_id}` command." }
+              { message: "Sorry, I don't understand the `#{command.action}` command." }
             end
           end
         end
