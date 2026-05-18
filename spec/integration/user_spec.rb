@@ -7,7 +7,7 @@ describe 'Users', :js, type: :feature do
     it 'authorizes a user' do
       expect_any_instance_of(User).to receive(:authorize!).with('code')
       visit "/authorize?code=code&state=#{user.id}"
-      expect(page.find_by_id('messages')).to have_content 'User successfully authorized!'
+      expect(page.find_by_id('messages')).to have_text 'User successfully authorized!'
     end
   end
 end
