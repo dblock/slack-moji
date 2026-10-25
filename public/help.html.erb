@@ -1,32 +1,47 @@
-<html>
-  <head>
-    <title>More Moji: Help</title>
-    <%= partial 'public/partials/_head.html.erb' %>
-  </head>
-  <body>
-    <p class='icon'>
-      <a href='/'><img src='<%= h asset_path("/img/icon.png") %>'></a>
-    </p>
-    <p>
-      <h1>More Moji: Help</h1>
-    </p>
-    <p>
-      This bot randomizes your emoji status in Slack.
-    </p>
-    <p>&nbsp;</p>
-    <p>
-      Turn on Moji with <b>/moji me</b>. Follow the instructions.
-    </p>
-    <p>
-      Right click on any message in Slack and choose <b>Emojify</b> to react to a message with relevant emoji.
-    </p>
-    <p>
-      <img src='<%= h asset_path("/img/emojify.gif") %>'>
-    </p>
-    <p>
-      DM <b>help</b> to <b>@moji</b> for more commands and options.
-    </p>
-    <%= partial 'public/partials/_footer.html.erb' %>
-  </body>
+<!doctype html>
+<html lang="en">
+<head>
+  <title>More Moji: Help</title>
+  <%= partial 'public/partials/_head.html.erb' %>
+</head>
+<body class="site-page">
+  <%= partial 'public/partials/_navigation.html.erb' %>
+  <main id="main" class="page-container content-page">
+    <h1>Help</h1>
+    <section class="help-section" aria-labelledby="faq-title">
+      <h2 id="faq-title">FAQ</h2>
+      <details class="help-topic">
+        <summary>How do I turn on emoji status?</summary>
+        <p>Install More Moji in your Slack team, then run <code>/moji me</code>. Follow the authorization link and choose <strong>Yes Emoji</strong>. Moji updates your profile with a random emoji and words of wisdom.</p>
+        <img class="wide-preview" src="<%= h asset_path('/img/demo.png') %>" width="1290" height="862" alt="Authorizing Moji and choosing Yes Emoji in Slack" loading="lazy">
+      </details>
+      <details class="help-topic">
+        <summary>How do I turn it off?</summary>
+        <p>Run <code>/moji me</code> again and choose <strong>No Emoji</strong>.</p>
+      </details>
+      <details class="help-topic">
+        <summary>How do I add emoji reactions to a message?</summary>
+        <p>Open the message's actions in Slack and choose <strong>Emojify</strong>. Moji adds reactions for matching words.</p>
+        <img src="<%= h asset_path('/img/emojify.gif') %>" width="788" height="568" alt="Emojify adding matching emoji reactions to a Slack message" loading="lazy">
+      </details>
+      <details class="help-topic">
+        <summary>Why do I need to authorize my profile?</summary>
+        <p>Installing Moji adds the bot to your team. Updating your personal Slack status requires your separate permission. Follow the <strong>Allow Moji</strong> link supplied by the bot.</p>
+      </details>
+      <details class="help-topic">
+        <summary>What other commands are available?</summary>
+        <p>DM <code>help</code> to <code>@moji</code> for command information, <code>subscription</code> for your team's subscription details, or <code>info</code> for information about the bot.</p>
+      </details>
+      <details class="help-topic">
+        <summary>How much does it cost?</summary>
+        <p>More Moji is free for two weeks, without a credit card. After that, a subscription costs $9.99 per Slack team per year and automatically renews.</p>
+      </details>
+    </section>
+    <section id="support" class="help-section">
+      <h2>Need a hand?</h2>
+      <p><a href="https://github.com/dblock/slack-moji/issues/new">Open a GitHub issue</a>, DM <a href="https://twitter.com/playplayio">@playplayio</a>, or contact dblock[at]dblock[dot]org.</p>
+    </section>
+  </main>
+  <%= partial 'public/partials/_footer.html.erb' %>
+</body>
 </html>
-

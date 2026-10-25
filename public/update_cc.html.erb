@@ -1,4 +1,5 @@
-<html>
+<!doctype html>
+<html lang="en">
   <head>
     <title>More Moji: Update Credit Card</title>
     <%= partial 'public/partials/_head.html.erb' %>
@@ -9,15 +10,13 @@
       stripe_email = request.params['stripeEmail']
     %>
   </head>
-  <body>
-    <p class='icon'>
-      <a href='/'><img src='<%= h asset_path("/img/icon.png") %>'></a>
-    </p>
-    <p>
+  <body class="site-page">
+    <%= partial 'public/partials/_navigation.html.erb' %>
+    <main id="main" class="page-container transaction-page">
+      <img class="transaction-logo" src="<%= h asset_path('/img/icon.png') %>" width="88" height="88" alt="">
       <h1>More Moji: Update Credit Card Info</h1>
-    </p>
-    <p id='messages' />
-    <p id='update_cc'>
+      <p id="messages" role="status" aria-live="polite"></p>
+      <section id="update_cc" aria-label="Credit card update">
       <form action="" method="POST">
         <script
           src="https://checkout.stripe.com/checkout.js" class="stripe-button"
@@ -31,11 +30,11 @@
         </script>
       </form>
       <p>
-        <img src='<%= h asset_path("/img/stripe.png") %>' width='119' height='26'></img>
-        <div class='small'>
-          Questions? Contact dblock[at]dblock[dot]org or DM <a href='https://twitter.com/playplayio'>@playplayio</a>.
-        </div>
+        <img src='<%= h asset_path("/img/stripe.png") %>' width='119' height='26' alt="Powered by Stripe">
       </p>
+      <div class='small'>
+        Questions? Contact dblock[at]dblock[dot]org or DM <a href='https://twitter.com/playplayio'>@playplayio</a>.
+      </div>
       <script>
         $(document).ready(function() {
           var data = {
@@ -70,7 +69,8 @@
           }
         });
       </script>
-    </p>
+      </section>
+    </main>
     <%= partial 'public/partials/_footer.html.erb' %>
   </body>
 </html>

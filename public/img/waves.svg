@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="768" viewBox="0 0 1366 768" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1366" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFCF0"/>
+      <stop offset=".5" stop-color="#FFF1BC"/>
+      <stop offset="1" stop-color="#FFE08A"/>
+    </linearGradient>
+    <linearGradient id="light" x1="0" y1="200" x2="0" y2="768" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity=".9"/>
+      <stop offset=".5" stop-color="#FFFFFF" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <path id="upper" d="M-100 180 C180 10 340 250 580 330 C850 450 1100 285 1466 30 L1466 210 C1100 480 850 560 580 440 C330 320 150 140 -100 350Z"/>
+    <path id="middle" d="M-80 360 C150 190 330 365 565 490 C830 660 1070 475 1446 190 L1446 430 C1100 550 910 690 650 630 C360 570 180 345 -80 510Z"/>
+    <path id="lower" d="M-100 570 C140 390 360 590 600 650 C880 730 1140 560 1466 390 L1466 620 C1100 830 850 810 575 740 C320 675 120 530 -100 710Z"/>
+  </defs>
+  <rect width="1366" height="768" fill="#FFFFFF"/>
+  <use href="#upper" fill="url(#gold)" opacity=".65"/>
+  <use href="#upper" fill="url(#light)"/>
+  <use href="#middle" fill="url(#gold)"/>
+  <use href="#middle" fill="url(#light)"/>
+  <use href="#lower" fill="url(#gold)" opacity=".75"/>
+  <use href="#lower" fill="url(#light)"/>
+  <g fill="none" stroke="#E9B330" stroke-opacity=".18">
+    <path d="M-100 170 C180 0 340 240 580 320 C850 440 1100 275 1466 20"/>
+    <path d="M-80 350 C150 180 330 355 565 480 C830 650 1070 465 1446 180"/>
+    <path d="M-100 558 C140 378 360 578 600 638 C880 718 1140 548 1466 378"/>
+  </g>
+  <g fill="none" stroke="#FFFFFF" stroke-opacity=".85" stroke-width="2">
+    <path d="M-100 245 C180 75 340 315 580 395 C850 515 1100 350 1466 95"/>
+    <path d="M-80 425 C155 270 330 440 575 555 C840 700 1080 505 1446 305"/>
+    <path d="M-80 445 C155 290 330 460 575 575 C840 720 1080 525 1446 325"/>
+    <path d="M-100 612 C140 432 360 632 600 692 C880 772 1140 602 1466 432"/>
+  </g>
+</svg>

@@ -1,0 +1,85 @@
+html { scrollbar-gutter: stable; }
+body { font-family: Arial, Helvetica, sans-serif; }
+.site-page { position: relative; isolation: isolate; display: flex; flex-direction: column; min-height: 100vh; margin: 0; color: #3d3424; background: #fff; font-size: 16px; line-height: 1.7; }
+.site-page::before { position: fixed; inset: 0; z-index: -1; content: ""; pointer-events: none; background: url("<%= asset_path('/img/waves.svg') %>") center top / 100% 100% no-repeat; }
+.site-page > main { flex: 1; }
+.site-page * { box-sizing: border-box; }
+.site-page a { color: #805100; text-underline-offset: 3px; }
+.site-page a:hover { text-decoration-thickness: 2px; }
+.site-page :focus-visible { outline: 3px solid #996500; outline-offset: 5px; }
+.site-page [id] { scroll-margin-top: 96px; }
+.page-container { width: calc(100% - 48px); max-width: 1120px; margin: 0 auto; }
+.skip-link { position: absolute; top: -80px; left: 16px; z-index: 20; padding: 10px 16px; background: #fff; }
+.skip-link:focus { top: 12px; }
+.site-nav { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee7d9; background: #fffffff2; backdrop-filter: blur(12px); }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; }
+.site-page .site-brand { display: inline-flex; align-items: center; gap: 10px; color: #3d2d16; font-size: 23px; font-weight: 800; letter-spacing: -.035em; text-decoration: none; white-space: nowrap; }
+.site-brand img { width: 36px; height: 36px; }
+.nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 24px; }
+.nav-links a { color: #5c4b2d; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-decoration: none; text-transform: uppercase; }
+.site-page h1 { margin: 0; color: #35291b; font-size: 48px; line-height: 1.15; letter-spacing: -.04em; }
+.hero { padding: 44px 0 40px; text-align: center; }
+.hero-icon { display: block; margin: 0 auto 20px; }
+.hero h1 { font-size: 72px; line-height: 1.08; }
+.hero-description { max-width: 680px; margin: 20px auto 24px; font-size: 21px; line-height: 1.65; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px 24px; }
+.hero-actions > a:not(.install-button) { font-size: 14px; }
+.site-page .install-button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; max-width: 100%; padding: 10px 24px; border-radius: 7px; background: #ffd04a; color: #422d0a; font-size: 16px; font-weight: 700; line-height: 1.4; text-decoration: none; transition: background-color .15s, transform .15s; }
+.site-page .install-button:hover { background: #ffdc75; transform: scale(1.03); }
+.trial-note { margin: 16px 0 0; color: #6e5c3d; font-size: 13px; }
+.site-page h2 { margin: 0 0 16px; color: #35291b; font-size: 36px; line-height: 1.2; letter-spacing: -.025em; }
+.feature-section { padding: 40px 0; border-top: 1px solid #eee7d9; }
+.feature-layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: center; gap: 56px; }
+.feature-copy p { margin: 0 0 16px; font-size: 18px; }
+.feature-preview { min-width: 0; margin: 0; padding: 12px; border: 1px solid #eadfc7; border-radius: 14px; background: #ffffffb3; box-shadow: 0 12px 36px #7c5d1612; }
+.feature-preview img { display: block; width: 100%; height: auto; border-radius: 6px; }
+.pricing-section { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 64px; margin-top: 36px; margin-bottom: 40px; padding: 32px; border: 1px solid #ead49a; border-radius: 16px; background: #fff7dbe6; }
+.pricing-section p { margin: 0 0 12px; }
+.pricing-action { min-width: 200px; text-align: center; }
+.eyebrow { color: #805100; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.price { display: flex; flex-direction: column; }
+.price strong { color: #35291b; font-size: 48px; line-height: 1.2; letter-spacing: -.04em; }
+.price span { margin: 8px 0 12px; color: #6e5c3d; font-size: 14px; }
+.site-page code { padding: 2px 5px; border-radius: 3px; background: #f4ebd3; font-size: .92em; overflow-wrap: anywhere; }
+.site-footer { padding: 20px 0; border-top: 1px solid #eee7d9; color: #6e5c3d; font-size: 13px; text-align: center; overflow-wrap: anywhere; }
+.site-footer p { margin: 6px 0; }
+.content-page { max-width: 860px; padding: 40px 0; overflow-wrap: anywhere; }
+.content-page h1 { margin-bottom: 24px; }
+.content-page h3, .content-page h4 { margin-top: 28px; line-height: 1.4; }
+.help-section { margin: 32px 0; }
+.help-section h2 { font-size: 26px; }
+.help-topic { padding: 16px 0; border-bottom: 1px solid #e5dcc8; }
+.help-topic summary { cursor: pointer; font-weight: 700; }
+.help-topic img { display: block; max-width: min(100%, 400px); height: auto; margin: 20px auto; }
+.help-topic .wide-preview { max-width: min(100%, 640px); }
+.transaction-page { max-width: 760px; padding: 40px 0 64px; text-align: center; overflow-wrap: anywhere; }
+.transaction-page h1 { font-size: 36px; }
+.transaction-logo { display: block; margin: 0 auto 24px; }
+#messages { min-height: 1.7em; margin: 24px 0; }
+.has-error { color: #a52222; }
+.transaction-page #subscribe, .transaction-page #update_cc { padding-top: 28px; }
+.small { font-size: 13px; }
+
+@media (max-width: 700px) {
+  .page-container { width: calc(100% - 32px); }
+  .nav-inner { flex-direction: column; gap: 8px; padding: 12px 0; }
+  .site-page .site-brand { font-size: 22px; }
+  .nav-links { gap: 8px 16px; }
+  .nav-links a { font-size: 10px; }
+  .site-page [id] { scroll-margin-top: 150px; }
+  .site-page h1 { font-size: 36px; }
+  .hero { padding: 32px 0; }
+  .hero h1 { font-size: clamp(44px, 10vw, 60px); }
+  .hero-description { font-size: 18px; }
+  .site-page h2 { font-size: 30px; }
+  .feature-section { padding: 28px 0; }
+  .feature-layout { grid-template-columns: 1fr; gap: 20px; }
+  .feature-preview { padding: 8px; }
+  .pricing-section { grid-template-columns: 1fr; gap: 24px; margin: 24px auto 32px; padding: 20px; }
+  .help-section h2 { font-size: 24px; }
+  .transaction-page h1 { font-size: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-page .install-button { transition: none; transform: none; }
+}
