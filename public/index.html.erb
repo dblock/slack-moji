@@ -1,39 +1,67 @@
-<html>
- <head>
+<!doctype html>
+<html lang="en">
+<head>
   <title>More Moji: More Emoji in Slack</title>
-  <%= partial 'public/partials/_head.html.erb' %>
-  <script src="<%= h asset_path("/scripts/register.js") %>"></script>
+  <meta name="description" content="Give your Slack status a little personality. Add emoji reactions to messages, too.">
   <meta name="slack-app-id" content="AFEH9PVM3">
-  <link rel="shortcut icon" href="<%= h asset_path("/favicon.ico") %>" type="image/x-icon">
-  <link rel="icon" href="<%= h asset_path("/favicon.ico") %>" type="image/x-icon">
-  <meta name="description" content="More emoji in Slack."/>
- </head>
- <body>
-  <p class='icon'>
-    <a href="/"><img src='<%= h asset_path("/img/icon.png") %>'></a>
-  </p>
-  <p>
-    <h1>More Moji: More Emoji in Slack</h1>
-  </p>
-  <p>
-    Randomizes emoji status and shares important words of wisdom.
-    Adds relevant emoji to text.
-  </p>
-  <p>&nbsp;</p>
-  <p id='messages' />
-  <p id='register'>
-    <a href="https://slack.com/oauth/authorize?scope=bot,commands&client_id=<%= ENV['SLACK_CLIENT_ID'] %>"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
-  </p>
-  <p>&nbsp;</p>
-  <p class='image'>
-    <img src='<%= h asset_path("/img/emojify.gif") %>'>
-  </p>
-  <p>
-    <small>
-      Free 2 week trial. Subscribe for $9.99/yr.
-    </small>
-  </p>
+  <%= partial 'public/partials/_head.html.erb' %>
+  <script src="<%= h asset_path('/scripts/register.js') %>"></script>
+</head>
+<body class="site-page">
+  <%= partial 'public/partials/_navigation.html.erb' %>
+  <main id="main">
+    <div id="homepage">
+      <section class="hero page-container" aria-labelledby="hero-title">
+        <img class="hero-icon" src="<%= h asset_path('/img/icon.png') %>" width="88" height="88" alt="">
+        <h1 id="hero-title">More emoji.</h1>
+        <p class="hero-description">Give your Slack status a little personality.<br>Add emoji reactions to messages, too.</p>
+        <div class="hero-actions">
+          <%= partial 'public/partials/_install_button.html.erb' %>
+          <a href="#how-it-works">See how it works</a>
+        </div>
+        <p class="trial-note">Free for two weeks. Then $9.99 per team / year.</p>
+      </section>
+      <section class="feature-section" id="how-it-works" aria-labelledby="status-title">
+        <div class="page-container feature-layout">
+          <div class="feature-copy">
+            <h2 id="status-title">Mix up your status</h2>
+            <p>Run <code>/moji me</code>, authorize your profile, and choose <strong>Yes Emoji</strong>. Moji pairs a random emoji with words of wisdom.</p>
+            <p>Want a break? Choose <strong>No Emoji</strong> to turn it off.</p>
+          </div>
+          <figure class="feature-preview">
+            <img src="<%= h asset_path('/img/demo.png') %>" width="1290" height="862" alt="Moji authorizing a Slack profile and offering Yes Emoji and No Emoji controls">
+          </figure>
+        </div>
+      </section>
+      <section class="feature-section" aria-labelledby="reactions-title">
+        <div class="page-container feature-layout">
+          <div class="feature-copy">
+            <h2 id="reactions-title">Say it with emoji</h2>
+            <p>Open a message's actions and choose <strong>Emojify</strong>. Moji adds emoji reactions that match the words in the message.</p>
+          </div>
+          <figure class="feature-preview">
+            <img src="<%= h asset_path('/img/emojify.gif') %>" width="788" height="568" alt="Using Emojify to add relevant emoji reactions to a Slack message" loading="lazy">
+          </figure>
+        </div>
+      </section>
+      <section class="pricing-section page-container" id="pricing" aria-label="Pricing">
+        <div>
+          <p>Try More Moji free for two weeks, without a credit card. Then subscribe your Slack team for $9.99 a year, automatically renewed.</p>
+          <p><a href="/help.html#support">Questions? Get in touch.</a></p>
+        </div>
+        <div class="pricing-action">
+          <p class="eyebrow">Simple pricing</p>
+          <p class="price"><strong>$9.99</strong><span>per team / year</span></p>
+          <%= partial 'public/partials/_install_button.html.erb' %>
+        </div>
+      </section>
+    </div>
+    <section id="register" class="page-container transaction-page" style="display: none;" aria-labelledby="register-title">
+      <h1 id="register-title">Connect your Slack team</h1>
+      <p id="messages" role="status" aria-live="polite">Working, please wait ...</p>
+      <p><a href="/help.html">Get help</a> or <a href="/">return to More Moji</a>.</p>
+    </section>
+  </main>
   <%= partial 'public/partials/_footer.html.erb' %>
- </body>
+</body>
 </html>
-

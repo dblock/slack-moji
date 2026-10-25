@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/10/25: Redesign More Moji with a responsive yellow-and-gold wavy layout, original demonstrations, shared navigation and expandable help while preserving installation, profile authorization, billing and privacy behavior - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/25: Upgrade framework and content-version local website assets with revalidating pages and stylesheets - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/23: Upgrade Ruby to 4.0.9 and refresh dependencies, leaving Stripe dependencies unchanged - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2025/09/29: Upgrade to Ruby 3.4.6 - [@dblock](https://github.com/dblock).

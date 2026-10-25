@@ -16,5 +16,6 @@ describe 'Versioned website assets', :js, type: :feature do
     JS
     expect(images).not_to be_empty
     expect(images).to all(be true)
+    expect(page.evaluate_script('getComputedStyle(document.body, "::before").backgroundImage')).to include("/img/waves.svg?v=#{Digest::SHA256.file('public/img/waves.svg').hexdigest}")
   end
 end

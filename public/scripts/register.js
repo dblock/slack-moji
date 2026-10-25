@@ -3,7 +3,8 @@ $(document).ready(function() {
   var code = $.url('?code')
   if (code) {
     SlackMoji.message('Working, please wait ...');
-    $('#register').hide();
+    $('#homepage').hide();
+    $('#register').show();
     $.ajax({
       type: "POST",
       url: "/api/teams",

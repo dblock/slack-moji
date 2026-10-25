@@ -20,6 +20,8 @@ describe 'Teams', :js, type: :feature do
       expect {
         visit '/?code=code'
         expect(page.find_by_id('messages')).to have_text 'Team successfully registered!'
+        expect(page).to have_no_css('#homepage')
+        expect(page).to have_css('#register #messages', text: 'Team successfully registered!')
       }.to change(Team, :count).by(1)
     end
   end
@@ -34,9 +36,7 @@ describe 'Teams', :js, type: :feature do
     end
 
     it 'includes a link to add to slack with the client id' do
-      expect(find("a[href='https://slack.com/oauth/authorize?scope=bot,commands&client_id=#{ENV.fetch(
-        'SLACK_CLIENT_ID', nil
-      )}']"))
+      expect(page).to have_link('Add to Slack', href: "https://slack.com/oauth/authorize?scope=bot,commands&client_id=#{ENV.fetch('SLACK_CLIENT_ID', nil)}", count: 2)
     end
   end
 end
