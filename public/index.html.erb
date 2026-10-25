@@ -2,15 +2,15 @@
  <head>
   <title>More Moji: More Emoji in Slack</title>
   <%= partial 'public/partials/_head.html.erb' %>
-  <script src="/scripts/register.js"></script>
+  <script src="<%= h asset_path("/scripts/register.js") %>"></script>
   <meta name="slack-app-id" content="AFEH9PVM3">
-  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="<%= h asset_path("/favicon.ico") %>" type="image/x-icon">
+  <link rel="icon" href="<%= h asset_path("/favicon.ico") %>" type="image/x-icon">
   <meta name="description" content="More emoji in Slack."/>
  </head>
  <body>
   <p class='icon'>
-    <a href="/"><img src='img/icon.png'></a>
+    <a href="/"><img src='<%= h asset_path("/img/icon.png") %>'></a>
   </p>
   <p>
     <h1>More Moji: More Emoji in Slack</h1>
@@ -26,7 +26,7 @@
   </p>
   <p>&nbsp;</p>
   <p class='image'>
-    <img src='img/emojify.gif'>
+    <img src='<%= h asset_path("/img/emojify.gif") %>'>
   </p>
   <p>
     <small>

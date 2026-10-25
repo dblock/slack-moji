@@ -5,7 +5,7 @@
   </head>
   <body>
     <p class='icon'>
-      <a href='/'><img src='img/icon.png'></a>
+      <a href='/'><img src='<%= h asset_path("/img/icon.png") %>'></a>
     </p>
     <p>
       <h1>More Moji: Help</h1>
@@ -21,7 +21,7 @@
       Right click on any message in Slack and choose <b>Emojify</b> to react to a message with relevant emoji.
     </p>
     <p>
-      <img src='img/emojify.gif'>
+      <img src='<%= h asset_path("/img/emojify.gif") %>'>
     </p>
     <p>
       DM <b>help</b> to <b>@moji</b> for more commands and options.
